@@ -10,6 +10,7 @@ An interactive educational journey from transformer fundamentals to microscopy s
 - Six interactive laboratories: attention, image patches, tensor dimensions, cell tracking, instance segmentation, and one-to-one assignment.
 - A 50-concept glossary, primary reading library, microscopy paper route, readiness gates, and an 18-experiment research ledger.
 - Browser-local progress and notes, with notebook export.
+- Light and soft dark themes, with a remembered preference and system-theme support.
 - A public educational blueprint and a downloadable CPU attention starter.
 
 The browser demonstrations use small synthetic examples. The PyTorch attention starter includes recorded numerical verification. Larger model training, real-data studies, and benchmark reproductions remain planned exercises.
