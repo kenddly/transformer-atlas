@@ -1,0 +1,43 @@
+{
+  "verified_at_client_date": "2026-10-17",
+  "python": "3.13.9",
+  "torch": "2.13.0+cpu",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "device": "cpu",
+  "cuda_available": false,
+  "checks": {
+    "numerical_weights": [
+      [
+        [
+          0.6697615493266569,
+          0.3302384506733431
+        ]
+      ]
+    ],
+    "numerical_output": [
+      [
+        [
+          1.3395230986533138,
+          1.3209538026933725
+        ]
+      ]
+    ],
+    "analytic_gradient_max_errors_QKV": [
+      3.5214886562329184e-16,
+      3.4867941867133823e-16,
+      0.0
+    ],
+    "finite_difference_abs_error": 3.109026924796865e-12,
+    "causal_earlier_output_max_difference": 0.0,
+    "padding_valid_output_max_difference": 0.0,
+    "multihead_loop_max_difference": 0.0,
+    "shared_input_projection_gradient_max_difference": 4.9960036108132044e-15,
+    "projection_weight_gradient_max_difference": 2.6645352591003757e-15,
+    "torch_SDPA_max_difference": 1.1102230246251565e-16
+  },
+  "notebook_code_cells_syntax_valid": true,
+  "notebook_outputs_stored": false,
+  "scope": "CPU numerical invariants; no training or speed benchmark.",
+  "notebook_code_cells_executed_sequentially": 6,
+  "notebook_execution_method": "Standard Python exec of code cells in one namespace; no Jupyter kernel was launched. Evidence output path redirected to the package validation file."
+}

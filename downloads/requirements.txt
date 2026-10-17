@@ -1,0 +1,5 @@
+# Compatibility specification, not a resolved or pinned environment.
+# Verified here with Python 3.13.9 and torch 2.13.0+cpu on Windows, CPU only.
+torch>=2.5,<3
+# A notebook frontend is optional; attention.py runs without one.
+# Resolve and record your own full environment before interpreting experiments.

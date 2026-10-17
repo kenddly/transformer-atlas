@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f7f3">
+  <meta name="description" content="Explore transformers from first principles, then connect attention to image patches, cell segmentation, and lineage tracking. 25 lessons and hands-on visual laboratories.">
+  <title>Transformer Atlas · An interactive learning journey</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Crect width='60' height='60' rx='16' fill='%23ef7647'/%3E%3Cpath d='M14 16h32v8H34v22h-8V24H14z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="curriculum.js" defer></script>
+  <script src="labs.js" defer></script>
+  <script src="extras.js" defer></script>
+  <script src="reference.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <aside class="sidebar" aria-label="Main navigation">
+    <a class="brand" href="#home" aria-label="Transformer Atlas home"><span class="brand-symbol">t<span>·</span></span><span>transformer<br><b>atlas</b><span class="brand-dot">.</span></span></a>
+    <div class="sidebar-caption">YOUR LEARNING WORKSPACE</div>
+    <nav id="navigation">
+      <a href="#home" data-nav="home"><span class="nav-icon">◈</span> Overview</a>
+      <a href="#curriculum" data-nav="curriculum"><span class="nav-icon">▤</span> Learning path <span class="nav-count">25</span></a>
+      <a href="#labs" data-nav="labs"><span class="nav-icon">⌘</span> Interactive labs <span class="nav-spark">✦</span></a>
+      <a href="#research" data-nav="research"><span class="nav-icon">▧</span> Research notebook</a>
+      <a href="#library" data-nav="library"><span class="nav-icon">▥</span> Reading library</a>
+      <a href="#reference" data-nav="reference"><span class="nav-icon">≡</span> Full blueprint</a>
+    </nav>
+    <div class="sidebar-rule"></div>
+    <div class="sidebar-caption">THE JOURNEY</div>
+    <div class="journey-nav">
+      <a href="#curriculum/foundations"><i class="dot dot-orange"></i> Transformer foundations <span>01</span></a>
+      <a href="#curriculum/vision"><i class="dot dot-blue"></i> From language to vision <span>02</span></a>
+      <a href="#curriculum/microscopy"><i class="dot dot-green"></i> Cells, motion & lineages <span>03</span></a>
+      <a href="#curriculum/research"><i class="dot dot-purple"></i> Evidence & discovery <span>04</span></a>
+    </div>
+    <div class="sidebar-bottom"><div class="progress-label"><span>Your progress</span><b id="progress-fraction">0 / 25</b></div><div class="progress-track"><span id="progress-bar"></span></div><small>Independently explained modules</small><a class="profile" href="#research"><span class="avatar">A</span><span><b>Your learning workspace</b><small>Learn. Build. Question.</small></span><span class="profile-arrow">↗</span></a></div>
+  </aside>
+  <div class="page-shell">
+    <header class="topbar"><div class="topbar-left"><button id="menu-button" class="icon-button menu-button" aria-label="Toggle navigation" aria-expanded="false">☰</button><span class="breadcrumb">Workspace <span>/</span> <b id="breadcrumb">Overview</b></span></div><div class="topbar-right"><span class="local-pill"><i></i> Interactive learning space</span><button class="search-trigger" id="search-button" aria-label="Search lessons and glossary"><span>⌕</span> Search <kbd>/</kbd></button><button class="avatar small-avatar" id="workspace-button" aria-label="Open your research notebook">A</button></div></header>
+    <main id="main" tabindex="-1"></main>
+    <footer><span>TRANSFORMER ATLAS</span><p>From understanding a computation to asking a better question.</p><a href="#reference">Explore the educational blueprint ↗</a></footer>
+  </div>
+  <dialog id="search-dialog" aria-label="Search workspace"><div class="search-head"><span>⌕</span><input id="global-search" type="search" placeholder="Search a concept, lesson, or question…" aria-label="Search a concept, lesson, or question"><button class="icon-button" id="close-search" aria-label="Close search">×</button></div><div id="search-results"></div><div class="search-hint">Explore lessons and the glossary <kbd>esc</kbd> to close</div></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
