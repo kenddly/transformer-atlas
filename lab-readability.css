@@ -1,0 +1,128 @@
+/* Keep interactive text readable even after a lab injects its own styles. */
+section.lab-root,
+section.extra-root {
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+section.lab-root h3,
+section.extra-root h3 { font-size: 22px; line-height: 1.4; }
+section.lab-root h4,
+section.extra-root h4 { font-size: 18px; line-height: 1.45; }
+section.lab-root p,
+section.extra-root p { font-size: 17px; line-height: 1.65; }
+
+section.lab-root .lab-eyebrow,
+section.extra-root .extra-eyebrow {
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: .08em;
+}
+
+section.lab-root .lab-control > span,
+section.lab-root .lab-check,
+section.lab-root .lab-muted,
+section.lab-root .lab-note,
+section.lab-root .lab-note p,
+section.lab-root details p,
+section.extra-root .extra-caption,
+section.extra-root .extra-note,
+section.extra-root .extra-note p,
+section.extra-root details p { font-size: 16px; line-height: 1.65; }
+
+section.lab-root button,
+section.lab-root input,
+section.lab-root select,
+section.extra-root button,
+section.extra-root input {
+  font-size: 16px;
+  line-height: 1.4;
+}
+section.lab-root button,
+section.lab-root input[type='number'],
+section.lab-root select,
+section.extra-root button,
+section.extra-root input[type='number'] { min-height: 44px; }
+section.lab-root input[type='range'] { min-height: 36px; }
+section.lab-root .lab-check { min-height: 44px; }
+section.lab-root .lab-check input { width: 20px; height: 20px; flex: 0 0 auto; }
+section.lab-root .lab-control { max-width: 100%; }
+section.lab-root .lab-control input[type='number'] { max-width: 160px; }
+section.lab-root .lab-control select { max-width: 100%; }
+section.lab-root select[data-method] { width: 230px; max-width: 100%; }
+section.lab-root .lab-matrix input { font-size: 16px; padding: 10px 6px; }
+section.lab-root .lab-matrix small { font-size: 14px; line-height: 1.55; }
+
+section.lab-root .lab-table,
+section.extra-root .extra-table,
+section.extra-root .extra-table th,
+section.extra-root .extra-table td { font-size: 16px; line-height: 1.55; }
+section.lab-root .lab-table caption,
+section.extra-root .extra-table caption { font-size: 14px; line-height: 1.6; }
+section.lab-root .lab-table th,
+section.lab-root .lab-table td { padding: 10px 12px; }
+section.lab-root .lab-table-wrap,
+section.extra-root .extra-table-wrap {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+section.extra-root .extra-table-wrap .extra-table { min-width: 340px; }
+
+section.lab-root .lab-heatmap {
+  min-width: 370px;
+  font-size: 16px;
+  border-spacing: 6px;
+}
+section.lab-root .lab-heatmap th { font-size: 16px; padding: 8px; }
+section.lab-root .lab-heatmap td { font-size: 16px; height: 52px; min-width: 66px; }
+section.lab-root .lab-stat strong,
+section.extra-root .extra-stat strong { font-size: 26px; line-height: 1.35; }
+section.lab-root .lab-stat span,
+section.extra-root .extra-stat span { font-size: 14px; line-height: 1.5; }
+section.lab-root .lab-stats,
+section.extra-root .extra-stats { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+
+section.lab-root .lab-equation,
+section.lab-root p.lab-equation,
+section.lab-root .lab-shape-box,
+section.extra-root .extra-mono { font-size: 16px; line-height: 1.8; }
+section.lab-root .lab-shape-box span { font-size: 14px; line-height: 1.6; }
+section.lab-root .lab-shape-box { max-width: 100%; overflow-wrap: anywhere; }
+section.lab-root .lab-token-grid { grid-template-columns: repeat(auto-fit, minmax(54px, 1fr)); gap: 7px; }
+section.lab-root .lab-token { font-size: 15px; min-height: 44px; padding: 7px 5px; }
+section.lab-root .lab-pixel { font-size: 14px; min-width: 46px; height: 44px; }
+section.lab-root .lab-feature { font-size: 16px; padding: 10px 6px; }
+section.lab-root .lab-feature span { font-size: 14px; }
+section.lab-root .lab-feature-row { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+section.lab-root .lab-legend { font-size: 14px; line-height: 1.6; }
+section.lab-root summary,
+section.extra-root summary { font-size: 16px; line-height: 1.6; }
+
+/* A diagram keeps its readable scale; only its own frame scrolls on a phone. */
+section.lab-root [data-mix],
+section.lab-root .lab-tracking-stage,
+section.lab-root .lab-graph-scroll,
+section.extra-root [data-greedy-graph],
+section.extra-root [data-optimal-graph] {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+section.lab-root [data-mix] .lab-svg { min-width: 470px; }
+section.lab-root .lab-tracking-stage .lab-svg { min-width: 400px; }
+section.lab-root .lab-graph-scroll .lab-svg { min-width: 690px; }
+section.extra-root .extra-svg { min-width: 320px; }
+
+@media (max-width: 600px) {
+  section.lab-root .lab-matrices { grid-template-columns: 1fr; gap: 12px; }
+  section.lab-root .lab-matrix { padding: 14px; }
+  section.lab-root .lab-matrix .lab-matrix-grid { gap: 8px; }
+  section.lab-root .lab-stats,
+  section.extra-root .extra-stats { grid-template-columns: 1fr; gap: 10px; }
+  section.lab-root .lab-stat,
+  section.extra-root .extra-stat { padding: 12px; }
+  section.lab-root .lab-feature-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
