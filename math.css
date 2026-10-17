@@ -1,0 +1,19 @@
+/* Readable notation with contained scrolling for long equations on small screens. */
+.katex { font-size: 1.08em; color: inherit; text-rendering: auto; }
+.katex-display { margin: .65em 0; overflow-x: auto; overflow-y: hidden; padding: .35em .15em .55em; }
+.katex-display > .katex { white-space: nowrap; }
+.equation, .math-block, .math-display { min-width: 0; max-width: 100%; font-family: inherit; font-size: 18px; }
+.math-display { display: block; }
+.equation.math-rendered, .math-block.math-rendered { text-align: left; white-space: normal; line-height: 1.7; }
+.math-block .katex-display, .equation .katex-display { margin: 0; }
+.shape-trace { white-space: pre-line; line-height: 2; font-family: inherit; font-size: 18px; overflow-x: auto; }
+.shape-trace .katex { font-size: 1.12em; }
+.lab-equation, .lab-shape-flow { max-width: 100%; min-width: 0; }
+.lab-equation .katex-display { text-align: left; }
+.lab-root .katex, .extra-root .katex { font-size: 1.12em; }
+.reference-content .math-inline { font-family: inherit; }
+.katex-error { font-family: inherit; white-space: normal; }
+@media (max-width: 650px) {
+  .equation, .math-block, .math-display { font-size: 17px; }
+  .katex-display > .katex { text-align: left; }
+}

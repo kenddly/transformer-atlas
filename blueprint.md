@@ -235,38 +235,38 @@ Agree on conventions before writing models. Use different symbols for image heig
 
 | Symbol | Meaning |
 |---|---|
-| B | Batch size |
-| T | Text sequence length, unless a lesson explicitly uses T for time |
-| N | Number of tokens or detections |
-| D | Model embedding width |
-| h | Number of attention heads |
-| d_h | Width of one head; commonly D/h |
-| T_q, T_k | Query length and key/value length |
-| V_vocab | Vocabulary size |
-| C | Image channels |
-| H, W | Image height and width |
-| Z | Volume depth |
-| F | Number of video frames |
-| P, P_z, P_y, P_x | Patch dimensions |
-| K_queries | Number of object or track queries |
+| \(B\) | Batch size |
+| \(T\) | Text sequence length, unless a lesson explicitly uses \(T\) for time |
+| \(N\) | Number of tokens or detections |
+| \(D\) | Model embedding width |
+| \(h\) | Number of attention heads |
+| \(d_h\) | Width of one head; commonly \(D/h\) |
+| \(T_q,T_k\) | Query length and key/value length |
+| \(V_{\mathrm{vocab}}\) | Vocabulary size |
+| \(C\) | Image channels |
+| \(H,W\) | Image height and width |
+| \(Z\) | Volume depth |
+| \(F\) | Number of video frames |
+| \(P,P_z,P_y,P_x\) | Patch dimensions |
+| \(K_{\mathrm{queries}}\) | Number of object or track queries |
 
 Common layouts:
 
-~~~text
-Token IDs:                [B, T]
-Token embeddings:         [B, T, D]
-One-head Q:               [B, T_q, d_h]
-One-head K and V:         [B, T_k, d_h]
-Multihead Q/K/V:          [B, h, T, d_h]
-Attention scores:         [B, h, T_q, T_k]
-2D image:                 [B, C, H, W]
-3D volume:                [B, C, Z, H, W]
-Video, chosen convention: [B, F, C, H, W]
-Padded cell tokens:       [B, N_max, D]
-Association scores:       [B, N_source, N_target]
-~~~
+| Tensor | Shape |
+|---|---|
+| Token IDs | \([B,T]\) |
+| Token embeddings | \([B,T,D]\) |
+| One-head \(Q\) | \([B,T_q,d_h]\) |
+| One-head \(K\) and \(V\) | \([B,T_k,d_h]\) |
+| Multihead \(Q,K,V\) | \([B,h,T,d_h]\) |
+| Attention scores | \([B,h,T_q,T_k]\) |
+| 2D image | \([B,C,H,W]\) |
+| 3D volume | \([B,C,Z,H,W]\) |
+| Video, chosen convention | \([B,F,C,H,W]\) |
+| Padded cell tokens | \([B,N_{\max},D]\) |
+| Association scores | \([B,N_{\mathrm{source}},N_{\mathrm{target}}]\) |
 
-The equal Q/K/V head width above is a convenient self-attention convention. In general, Q and K must share their compatibility width, while V can have a different content width. Cross-attention can also project streams with different original feature widths.
+The equal \(Q,K,V\) head width above is a convenient self-attention convention. In general, \(Q\) and \(K\) must share their compatibility width, while \(V\) can have a different content width. Cross-attention can also project streams with different original feature widths.
 
 Every lesson must state whether time belongs in the batch, token sequence, or a separate axis. A reshape changes organization; it does not create or remove information by itself. A projection can change information and dimension.
 
@@ -310,7 +310,7 @@ Teach and implement:
 - Training/evaluation modes and why dropout changes behavior.
 - Floating-point precision, numerical tolerances, and overflow/underflow.
 
-For a softmax row z, calculate softmax(z - max(z)) and show that subtracting the row maximum preserves the probabilities while improving numerical stability.
+For a softmax row \(z\), calculate \(\operatorname{softmax}(z-\max_j z_j)\) and show that subtracting the row maximum preserves the probabilities while improving numerical stability.
 
 Use a two-layer network to trace gradients by hand, then compare automatic differentiation with finite differences on a very small problem. Explain why finite differences become unreliable with poor step sizes or low precision.
 
@@ -353,7 +353,7 @@ Compare character, byte, word, and subword units. Explain the vocabulary-size/se
 
 Perform several byte-pair encoding merges by hand. Explain that tokenization constructs discrete units; embedding learning assigns trainable vectors to those units. SentencePiece supports tokenization approaches rather than naming one universal algorithm.
 
-An embedding table has shape [V_vocab,D]. Integer IDs [B,T] select rows, giving [B,T,D]. ID 100 is not semantically closer to ID 101 than to ID 900 because of their numerical values.
+An embedding table has shape \([V_{\mathrm{vocab}},D]\). Integer IDs \([B,T]\) select rows, giving \([B,T,D]\). ID 100 is not semantically closer to ID 101 than to ID 900 because of their numerical values.
 
 Distinguish a context-independent input embedding from a contextual hidden state after transformer layers. Trace how repeated appearances of a token accumulate gradients in the same embedding row.
 
@@ -384,58 +384,60 @@ $$
 
 Explain each role:
 
-- Q describes the learned compatibility features of a receiving position.
-- K supplies compatibility features of candidate source positions.
-- V supplies the content to mix.
-- Each row of A weights source positions for one query.
-- M controls which interactions are allowed.
+- \(Q\) describes the learned compatibility features of a receiving position.
+- \(K\) supplies compatibility features of candidate source positions.
+- \(V\) supplies the content to mix.
+- Each row of \(A\) weights source positions for one query.
+- \(M\) controls which interactions are allowed.
 
 The query/key/value analogy is useful, but these are learned projections rather than literal linguistic questions and answers. A head has no guaranteed human-interpretable role.
 
 **Required shape trace:**
 
-~~~text
-X_q             [B,T_q,D]
-X_k             [B,T_k,D]
-W_Q,W_K,W_V     [D,d_h] each, for this simple head
-Q               [B,T_q,d_h]
-K,V             [B,T_k,d_h]
-Q K^T           [B,T_q,T_k]
-A               [B,T_q,T_k]
-A V             [B,T_q,d_h]
-~~~
+| Tensor or product | Shape |
+|---|---|
+| \(X_q\) | \([B,T_q,D]\) |
+| \(X_k\) | \([B,T_k,D]\) |
+| \(W_Q,W_K,W_V\) | \([D,d_h]\) each, for this simple head |
+| \(Q\) | \([B,T_q,d_h]\) |
+| \(K,V\) | \([B,T_k,d_h]\) |
+| \(QK^\top\) | \([B,T_q,T_k]\) |
+| \(A\) | \([B,T_q,T_k]\) |
+| \(AV\) | \([B,T_q,d_h]\) |
 
 Derive the scaling motivation under explicit assumptions: if independent zero-mean query/key components have unit variance, the variance of their dot product grows with head width. Scaling moderates score magnitude before softmax.
 
-Then calculate the backward pass. With upstream gradient G and without dropout:
+Then calculate the backward pass. Write \(dU=\partial\mathcal L/\partial U\) for a tensor gradient. With upstream gradient \(G=dO\) and without dropout:
 
-~~~text
-dV = A^T G
-dA = G V^T
-dS_row = A_row * (dA_row - sum(A_row * dA_row))
-dQ = dS K / sqrt(d_h)
-dK = dS^T Q / sqrt(d_h)
-~~~
+$$
+\begin{aligned}
+dV &= A^\top G, & dA &= GV^\top,\\
+dS_{ij} &= A_{ij}\left(dA_{ij}-\sum_{\ell}A_{i\ell}dA_{i\ell}\right),\\
+dQ &= \frac{dS\,K}{\sqrt{d_h}}, & dK &= \frac{dS^\top Q}{\sqrt{d_h}}.
+\end{aligned}
+$$
 
 Continue through the projection matrices and input embeddings. Compare with automatic differentiation and finite differences. State which dimensions are summed.
 
 For the projections, include:
 
-~~~text
-dW_Q = sum_batch(X_q^T dQ)
-dW_K = sum_batch(X_k^T dK)
-dW_V = sum_batch(X_k^T dV)
-dX_q = dQ W_Q^T
-dX_k = dK W_K^T + dV W_V^T
-~~~
+$$
+\begin{aligned}
+dW_Q &= \sum_b X_{q,b}^\top dQ_b,\\
+dW_K &= \sum_b X_{k,b}^\top dK_b,\\
+dW_V &= \sum_b X_{k,b}^\top dV_b,\\
+dX_q &= dQ\,W_Q^\top,\\
+dX_k &= dK\,W_K^\top+dV\,W_V^\top.
+\end{aligned}
+$$
 
 For self-attention, the shared input receives all three projection-path contributions. Keep a fixed blocking mask separate from a learned additive positional bias: the latter has trainable parameters and receives gradients.
 
-Extend to h heads: project, reshape to [B,h,T,d_h], compute attention, concatenate outputs, and apply W_O. Explain that each head's projection can use every input feature; heads are not necessarily assigned disjoint semantic subsets of the original input.
+Extend to \(h\) heads: project, reshape to \([B,h,T,d_h]\), compute attention, concatenate outputs, and apply \(W_O\). Explain that each head's projection can use every input feature; heads are not necessarily assigned disjoint semantic subsets of the original input.
 
 **Build later:** an editable attention calculator plus a reference implementation using matrix operations.
 
-**Pass when:** the learner can calculate one attention row, identify the softmax axis, and explain the different paths through which Q/K and V affect the output.
+**Pass when:** the learner can calculate one attention row, identify the softmax axis, and explain the different paths through which \(Q,K\) and \(V\) affect the output.
 
 **Read:** the original architecture paper for the overall design; [PyTorch MultiheadAttention](https://docs.pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html) for implementation shapes and conventions.
 
@@ -489,16 +491,18 @@ Choose a pre-norm educational implementation and document the final stack normal
 
 LayerNorm computes statistics across selected feature dimensions for each token, with learned scale and offset and a numerical epsilon. Compare it with BatchNorm and RMSNorm. Explain what is normalized, not just the formula's name.
 
-For a token with D features, calculate its feature mean and population variance, then normalize as (x - mean)/sqrt(variance + epsilon), followed by learned scale and offset. RMSNorm omits mean subtraction and normalizes through the root mean square; it is not merely LayerNorm with its bias removed.
+For a token with \(D\) features, calculate its feature mean \(\mu\) and population variance \(\sigma^2\), then normalize as \((x-\mu)/\sqrt{\sigma^2+\epsilon}\), followed by learned scale and offset. RMSNorm omits mean subtraction and normalizes through the root mean square; it is not merely LayerNorm with its bias removed.
 
 The complete educational pre-norm block is:
 
-~~~text
-u = x + Dropout(MHA(LN1(x)))
-y = u + Dropout(FFN(LN2(u)))
-~~~
+$$
+\begin{aligned}
+u &= x+\operatorname{Dropout}\!\left(\operatorname{MHA}(\operatorname{LN}_1(x))\right),\\
+y &= u+\operatorname{Dropout}\!\left(\operatorname{FFN}(\operatorname{LN}_2(u))\right).
+\end{aligned}
+$$
 
-LN1 and LN2 have separate learned parameters. Explain dropout on attention weights separately from dropout on sublayer outputs.
+\(\operatorname{LN}_1\) and \(\operatorname{LN}_2\) have separate learned parameters. Explain dropout on attention weights separately from dropout on sublayer outputs.
 
 The positionwise feed-forward network mixes feature channels at each position:
 
@@ -537,7 +541,7 @@ Keep topology and training objective separate:
 | Decoder-only | Causal access to a prefix | Predict the next token |
 | Encoder–decoder | Encoder reads source; decoder reads target prefix and encoder outputs | Conditional sequence generation |
 
-For cross-attention, Q originates in the receiving stream and K/V in a source stream. Their sequence lengths need not match.
+For cross-attention, \(Q\) originates in the receiving stream and \(K,V\) in a source stream. Their sequence lengths need not match.
 
 Study BERT's masked-language modelling and original next-sentence objective, GPT-style autoregressive likelihood, and T5's text-to-text framing and span corruption. The original next-sentence objective is a historical design choice, not a requirement for every encoder.
 
@@ -553,7 +557,7 @@ Include weight tying between input embeddings and the vocabulary projection as a
 
 **Build later:** a tiny causal language model and a small encoder–decoder task. Implement masked-token learning as a separate objective experiment.
 
-**Pass when:** pretraining, fine-tuning, conditioning, teacher forcing, and evaluation can be distinguished, and the source of every Q/K/V tensor is known.
+**Pass when:** pretraining, fine-tuning, conditioning, teacher forcing, and evaluation can be distinguished, and the source of every \(Q,K,V\) tensor is known.
 
 **Read:** [BERT](https://arxiv.org/abs/1810.04805), [autoregressive language-model research](https://arxiv.org/abs/2005.14165), [T5](https://arxiv.org/abs/1910.10683), [CrossEntropyLoss](https://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html).
 
@@ -568,7 +572,7 @@ Compare:
 - Learned absolute position vectors added to embeddings.
 - Sinusoidal vectors with position-dependent frequencies.
 - Relative position representations or biases.
-- Rotary positional embeddings, which rotate Q/K feature pairs.
+- Rotary positional embeddings, which rotate \(Q,K\) feature pairs.
 - Two-dimensional and three-dimensional position information.
 - Time indices and elapsed time in irregularly sampled movies.
 
@@ -599,20 +603,19 @@ For inference, follow logits through temperature and greedy or sampled token sel
 
 Derive KV caching: prior keys and values at each layer can be reused during causal generation. Cached activations are not weight updates or durable learned memory.
 
-For a conventional cache:
+For a conventional cache, let \(L\) be the number of layers, \(B\) the batch size, \(T_{\mathrm{cache}}\) the cached sequence length, \(h_{\mathrm{KV}}\) the number of key/value heads, \(d_h\) the head width, and \(s\) the bytes per stored element:
 
-~~~text
-bytes = 2 × layers × batch × cached_tokens
-          × KV_heads × head_width × bytes_per_element
-~~~
+$$
+\operatorname{cache\ bytes}=2LB\,T_{\mathrm{cache}}\,h_{\mathrm{KV}}\,d_h\,s.
+$$
 
 Introduce multi-query/grouped-query attention as extensions that alter KV-head count. Verify cached and uncached outputs with dropout disabled and matching position conventions.
 
 Reuse is valid when the causal prefix representations remain unchanged under fixed parameters and deterministic evaluation. Changed prefix tokens, attention access, weights, or positional conventions can invalidate the cache.
 
-Cached decoding often has unequal query/key lengths. A query at absolute position offset + i may attend only to keys at positions at most offset + i. A fresh square triangular mask is insufficient, and a library's non-square causal alignment must be checked explicitly. Verify one new query attending to the entire cached prefix and a multi-token continuation. RoPE positions must continue from the existing offset.
+Cached decoding often has unequal query/key lengths. A query at absolute position \(o+i\), where \(o\) is the cached-prefix offset, may attend only to keys at positions \(j\leq o+i\). A fresh square triangular mask is insufficient, and a library's non-square causal alignment must be checked explicitly. Verify one new query attending to the entire cached prefix and a multi-token continuation. RoPE positions must continue from the existing offset.
 
-For dense self-attention, score storage grows with B × h × N² and pairwise work with approximately N²D. Projection and FFN work also matter; do not characterize the whole model using only its score matrix.
+For dense self-attention, score storage grows with \(BhN^2\) and pairwise work with approximately \(N^2D\) per batch item. Projection and FFN work also matter; do not characterize the whole model using only its score matrix.
 
 FlashAttention changes memory movement and tiling for exact dense attention, within numerical precision. It is not a claim of linear pairwise arithmetic. Compare efficient kernels, local/sparse interaction patterns, and approximations as distinct ideas.
 
@@ -630,7 +633,7 @@ FlashAttention changes memory movement and tiling for exact dense attention, wit
 
 Contrast convolution's local, shared filtering with attention's content-dependent token interactions. A CNN can acquire a large receptive field through depth; a transformer is not automatically superior because its interactions can span an image.
 
-Patchify [B,C,H,W] into N patches of P × P pixels. Flatten each patch and project its CP² values into D features:
+Patchify \([B,C,H,W]\) into \(N\) patches of \(P\times P\) pixels. Flatten each patch and project its \(CP^2\) values into \(D\) features:
 
 $$
 N=\frac{H}{P}\frac{W}{P},\qquad
@@ -640,24 +643,24 @@ $$
 
 Use this concrete trace:
 
-~~~text
-Input image:           [B,3,224,224]
-Patch size:            16 × 16
-Patch grid:            14 × 14
-Flattened patches:     [B,196,768]
-Projected patch tokens:[B,196,D]
-With a class token:    [B,197,D]
-Encoder output:        [B,197,D]
-Classification head:  [B,number_of_classes]
-~~~
+| Stage | Shape or dimensions |
+|---|---|
+| Input image | \([B,3,224,224]\) |
+| Patch size | \(16\times16\) |
+| Patch grid | \(14\times14\) |
+| Flattened patches | \([B,196,768]\) |
+| Projected patch tokens | \([B,196,D]\) |
+| With a class token | \([B,197,D]\) |
+| Encoder output | \([B,197,D]\) |
+| Classification head | \([B,n_{\mathrm{classes}}]\), with \(n_{\mathrm{classes}}\) output classes |
 
-The patch vector length happens to be 768 in this example. The embedding width D is a separate design choice.
+The patch vector length happens to be \(768\) in this example. The embedding width \(D\) is a separate design choice.
 
 The formulas assume divisibility by the patch dimensions. For other image sizes, choose and document padding, cropping, or a compatible embedding policy; keep reconstruction coordinates and valid-region masks consistent.
 
 Explain the learned classification token, positional embeddings, final normalization, classifier, and mean-pooling alternative. A patch is a spatial sampling unit, not necessarily one semantic object.
 
-Implement patchification explicitly first. Show its equivalence to a suitably configured convolutional projection with kernel and stride P. Reconstruct the input exactly before the lossy/learned projection to verify patch order.
+Implement patchification explicitly first. Show its equivalence to a suitably configured convolutional projection with kernel and stride \(P\). Reconstruct the input exactly before the lossy/learned projection to verify patch order.
 
 For dense tasks, retain spatial patch features. A backbone may keep its class token internally while a decoder uses the patch tokens. One pooled image vector is not by itself a dense prediction map.
 
@@ -736,7 +739,7 @@ Compare StarDist's radial shape proposals and suppression with Cellpose's within
 
 **Question:** How do patch features become a decision at each pixel?
 
-Start from an encoder feature tensor [B,N,D]. Remove or separately handle non-spatial tokens, restore the patch grid, and apply a decoder. Discuss linear heads, upsampling, convolutional refinement, and multiscale fusion.
+Start from an encoder feature tensor \([B,N,D]\). Remove or separately handle non-spatial tokens, restore the patch grid, and apply a decoder. Discuss linear heads, upsampling, convolutional refinement, and multiscale fusion.
 
 Explain what bilinear interpolation can and cannot recover. Upsampling a coarse map does not independently restore missing boundary evidence.
 
@@ -816,13 +819,13 @@ CellSAM was published in Nature Methods in December 2025. The checked Cellpose-S
 
 **Question:** Which assumptions change when the input is a volume?
 
-Use [B,C,Z,H,W] and non-cubic patches if appropriate:
+Use \([B,C,Z,H,W]\) and non-cubic patches if appropriate:
 
 $$
-N=(Z/P_z)(H/P_y)(W/P_x).
+N=\frac{Z}{P_z}\frac{H}{P_y}\frac{W}{P_x}.
 $$
 
-Relate sampling to physical scale. For spacing [4,1,1] micrometres in [z,y,x], a [4,16,16] voxel patch has nominal support spanning approximately [16,16,16] micrometres. Equal voxel counts along axes need not describe equal physical extents.
+Relate sampling to physical scale. For spacing \([4,1,1]\,\mu\mathrm m\) in \([z,y,x]\), a \([4,16,16]\) voxel patch has nominal support spanning approximately \([16,16,16]\,\mu\mathrm m\). Equal voxel counts along axes need not describe equal physical extents.
 
 Choose a crop/pad policy when volume dimensions do not divide by patch sizes. Reconcile overlapping tile predictions through geometry and instance matching/stitching; averaging arbitrary integer instance IDs has no meaningful interpretation.
 
@@ -840,7 +843,7 @@ Study UNETR and Swin UNETR as medical dense-prediction examples. Their semantic 
 
 **Build later:** synthetic ellipsoid volumes, then a small real crop. Compare depth continuity and memory before increasing volume size.
 
-**Token-count exercise:** a 128³ volume with 16³ patches has 512 tokens; 8³ patches have 4,096. The ordinary full score matrix grows sixty-fourfold when token count grows eightfold.
+**Token-count exercise:** a \(128^3\) volume with \(16^3\) patches has \(512\) tokens; \(8^3\) patches have \(4{,}096\). The ordinary full score matrix grows sixty-fourfold when token count grows eightfold.
 
 **Pass when:** the physical meaning of a patch, a centroid displacement, and a 3D overlap score is explicit.
 
@@ -856,7 +859,7 @@ Compare three representations:
 2. **Detected-object tokens:** compact representations of individual objects; upstream detection errors matter.
 3. **Persistent track queries:** learned states associated with ongoing hypotheses; identity handling depends on the full architecture.
 
-Introduce tubelets, frame-wise features, joint space–time attention, divided spatial/temporal attention, and local spatiotemporal windows. For F frames and N spatial patches per frame, full space–time attention considers approximately (FN)² token pairs.
+Introduce tubelets, frame-wise features, joint space–time attention, divided spatial/temporal attention, and local spatiotemporal windows. For \(F\) frames and \(N\) spatial patches per frame, full space–time attention considers approximately \((FN)^2\) token pairs.
 
 TimeSformer and Video Swin are useful architectural readings, but their original video-recognition outputs do not themselves supply cell instances or lineages.
 
@@ -899,7 +902,7 @@ Use this assignment example:
 | A | 1.0 | 2.0 |
 | B | 1.1 | 10.0 |
 
-A greedy A-first choice gives total cost 11. The minimum one-to-one assignment gives 3.1. Explain why jointly optimizing one frame pair is still different from globally optimizing a whole video.
+A greedy A-first choice gives total cost \(1.0+10.0=11.0\). The minimum one-to-one assignment gives \(2.0+1.1=3.1\). Explain why jointly optimizing one frame pair is still different from globally optimizing a whole video.
 
 Normal one-to-one assignment does not directly model one mother producing two daughters. Add explicit events rather than hiding division in a nearest-neighbor heuristic.
 
@@ -1117,7 +1120,7 @@ Use this as a coverage audit when expanding the lessons. A checked item means an
 
 ### Attention internals
 
-- [ ] Q/K/V sources, widths, learned projections, optional biases, and fused QKV implementation.
+- [ ] \(Q,K,V\) sources, widths, learned projections, optional biases, and fused QKV implementation.
 - [ ] Dot-product compatibility, scaling assumptions, and stable softmax.
 - [ ] Query axis versus key axis and row normalization.
 - [ ] Attention weights versus value content versus final prediction scores.

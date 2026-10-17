@@ -22,9 +22,9 @@ window.CURRICULUM = [
     ],
     "equation": "image → instance masks → detections → association scores → valid lineages → biological measurements",
     "shapes": [
-      "Image: [B, C, H, W]",
-      "Instance labels: [B, H, W] integer IDs",
-      "Detection table: [N, features]",
+      "Image: \\([B, C, H, W]\\)",
+      "Instance labels: \\([B, H, W]\\) integer IDs",
+      "Detection table: \\([N, n_{\\mathrm{features}}]\\)",
       "Lineage: detection nodes + time-forward event edges"
     ],
     "numerical": "Two nuclei in frame 0 and two in frame 1 permit four possible pairwise links. Selecting two links requires an identity decision. If a mask merges the two nuclei, the next stage sees only one detection and cannot recover the missing object from that fixed detection table.",
@@ -52,7 +52,8 @@ window.CURRICULUM = [
         "title": "CBIA organoid workflow",
         "url": "https://cbia.fi.muni.cz/research/spatiotemporal/organoids.html"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{gathered}\\text{image}\\to\\text{instance masks}\\to\\text{detections}\\\\\\to\\text{association scores}\\to\\text{valid lineages}\\\\\\to\\text{biological measurements}\\end{gathered}"
   },
   {
     "id": "01",
@@ -62,14 +63,14 @@ window.CURRICULUM = [
     "question": "Which operations and numerical habits make later diagrams trustworthy?",
     "intuition": "A tensor is an array with named axes. Matrix multiplication combines compatible feature axes; reshape reorganizes existing values; a learned projection changes the representation. Tracing those distinctions is often more useful than memorizing a model’s name.",
     "essential": [
-      "A dot product multiplies corresponding vector elements and sums them. Matrix multiplication repeats that calculation for rows and columns. If X is [B,T,D] and W is [D,E], XW is [B,T,E]: each token receives the same feature transformation.",
+      "A dot product multiplies corresponding vector elements and sums them. Matrix multiplication repeats that calculation for rows and columns. If \\(X\\) has shape \\([B,T,D]\\) and \\(W\\) has shape \\([D,E]\\), \\(XW\\) has shape \\([B,T,E]\\): each token receives the same feature transformation.",
       "Logits are unrestricted scores. Softmax converts one row of scores into nonnegative probabilities that sum to one. Cross-entropy penalizes a low probability assigned to the correct class. Entropy describes how spread out the distribution is; it does not establish whether it is correct.",
       "The chain rule carries an output error backward through every contributing operation. Automatic differentiation computes this bookkeeping on the recorded computation graph. Gradients accumulate unless explicitly reset, so unintended accumulation changes training."
     ],
     "technical": [
-      "Use stable softmax: subtract each row maximum before exponentiating. This leaves probabilities unchanged because the shared factor cancels. Prefer a stable log-softmax for log probabilities rather than computing log(softmax(z)) after small probabilities underflow.",
+      "Use stable softmax: subtract each row maximum before exponentiating. This leaves probabilities unchanged because the shared factor cancels. Prefer a stable log-softmax for log probabilities rather than computing \\(\\log\\!\\bigl(\\operatorname{softmax}(z)\\bigr)\\) after small probabilities underflow.",
       "Permutation changes axis order; reshape changes grouping. A view may share storage and may require compatible strides. Transposing an array does not guarantee contiguous storage. Broadcasting aligns compatible axes; a misplaced singleton can silently produce the wrong computation.",
-      "Check a small analytic gradient against automatic differentiation and finite differences. A central difference [L(w+ε)−L(w−ε)]/(2ε) balances truncation and rounding errors; excessively small ε can be unreliable in low precision. Use tolerances appropriate to the dtype.",
+      "Check a small analytic gradient against automatic differentiation and finite differences. A central difference \\(\\frac{L(w+\\varepsilon)-L(w-\\varepsilon)}{2\\varepsilon}\\) balances truncation and rounding errors; excessively small \\(\\varepsilon\\) can be unreliable in low precision. Use tolerances appropriate to the dtype.",
       "Dropout behaves differently in training and evaluation. Parameter count, stored activations, arithmetic operations, and elapsed runtime measure different resources; none can be inferred exactly from another."
     ],
     "research": [
@@ -77,20 +78,20 @@ window.CURRICULUM = [
     ],
     "equation": "softmax(z)ᵢ = exp(zᵢ − max(z)) / Σⱼ exp(zⱼ − max(z))",
     "shapes": [
-      "X: [B, T, D]",
-      "W: [D, E]",
-      "XW + bias: [B, T, E]",
-      "Row probabilities: [B, T, classes]"
+      "\\(X\\): \\([B, T, D]\\)",
+      "\\(W\\): \\([D, E]\\)",
+      "\\(XW+\\mathrm{bias}\\): \\([B, T, E]\\)",
+      "Row probabilities: \\([B, T, n_{\\mathrm{classes}}]\\)"
     ],
-    "numerical": "For logits [1000,1001], direct exponentiation may overflow. Subtracting 1001 gives [−1,0], so the probabilities are approximately [0.269,0.731]. For L=w² at w=3, the derivative is 6.",
+    "numerical": "For logits \\([1000,1001]\\), direct exponentiation may overflow. Subtracting 1001 gives \\([-1,0]\\), so the probabilities are approximately \\([0.269,0.731]\\). For \\(L=w^2\\) at \\(w=3\\), the derivative is 6.",
     "exercise": "Trace a two-layer network by hand. Record every axis, compute a stable softmax, and compare one parameter gradient with a central finite difference.",
     "failure": "Normalize softmax across the batch instead of classes. Predictions then depend on unrelated examples in the batch; the rows no longer have the intended probabilistic meaning.",
     "check": {
-      "question": "What is the output shape of [2,5,3] multiplied by [3,7]?",
+      "question": "What is the output shape of \\([2,5,3]\\) multiplied by \\([3,7]\\)?",
       "options": [
-        "[2,5,7]",
-        "[2,3,7]",
-        "[5,7,3]"
+        "\\([2,5,7]\\)",
+        "\\([2,3,7]\\)",
+        "\\([5,7,3]\\)"
       ],
       "answer": 0,
       "explanation": "The shared feature dimension 3 is summed. Batch 2 and token count 5 are preserved, and the output feature width is 7."
@@ -107,7 +108,8 @@ window.CURRICULUM = [
         "title": "PyTorch Linear",
         "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.Linear.html"
       }
-    ]
+    ],
+    "equationLatex": "\\operatorname{softmax}(z)_i=\\frac{\\exp(z_i-\\max_j z_j)}{\\sum_j\\exp(z_j-\\max_k z_k)}"
   },
   {
     "id": "02",
@@ -122,7 +124,7 @@ window.CURRICULUM = [
       "The 2017 transformer organizes interactions around attention without recurrent layers in the proposed architecture. It still needs embeddings, positional information, feed-forward networks, residuals, normalization, and output projections. Attention predates transformers."
     ],
     "technical": [
-      "An RNN update hₜ=φ(Wₓxₜ+Wₕhₜ₋₁+b) has a sequential state dependency. In a recurrent attention decoder, compatibility between the decoder state and each source state produces weights, and a weighted source context feeds generation.",
+      "An RNN update \\(h_t=\\phi(W_xx_t+W_hh_{t-1}+b)\\) has a sequential state dependency. In a recurrent attention decoder, compatibility between the decoder state and each source state produces weights, and a weighted source context feeds generation.",
       "A transformer encoder can process source positions in parallel within a layer. Teacher-forced decoder training can compute target positions together under a causal mask. Autoregressive generation still selects an output token before feeding it into the next step."
     ],
     "research": [
@@ -130,11 +132,11 @@ window.CURRICULUM = [
     ],
     "equation": "hₜ = φ(Wₓxₜ + Wₕhₜ₋₁ + b); contextₜ = Σⱼ αₜⱼ encoder_stateⱼ",
     "shapes": [
-      "Source embeddings: [B, T_source, D]",
-      "Encoder states: [B, T_source, D_state]",
-      "Decoder-to-source weights: [B, T_target, T_source]"
+      "Source embeddings: \\([B, T_{\\mathrm{source}}, D]\\)",
+      "Encoder states: \\([B, T_{\\mathrm{source}}, D_{\\mathrm{state}}]\\)",
+      "Decoder-to-source weights: \\([B, T_{\\mathrm{target}}, T_{\\mathrm{source}}]\\)"
     ],
-    "numerical": "Suppose the source states are [1,0] and [0,2]. Weights [0.75,0.25] produce context [0.75,0.5]. A later decoder step may use [0.1,0.9], yielding [0.1,1.8] from the same source.",
+    "numerical": "Suppose the source states are \\([1,0]\\) and \\([0,2]\\). Weights \\([0.75,0.25]\\) produce context \\([0.75,0.5]\\). A later decoder step may use \\([0.1,0.9]\\), yielding \\([0.1,1.8]\\) from the same source.",
     "exercise": "Draw an RNN state chain, a recurrent attention decoder, and the original transformer encoder–decoder. Mark which computations depend on a previously generated output.",
     "failure": "Attribute a reversal-task improvement solely to architectural superiority when one model saw more data or used a larger training budget.",
     "check": {
@@ -166,7 +168,8 @@ window.CURRICULUM = [
         "title": "Attention Is All You Need",
         "url": "https://arxiv.org/abs/1706.03762"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{aligned}h_t&=\\phi(W_xx_t+W_hh_{t-1}+b)\\\\c_t&=\\sum_j\\alpha_{tj}\\,h_j^{\\mathrm{enc}}\\end{aligned}"
   },
   {
     "id": "03",
@@ -181,7 +184,7 @@ window.CURRICULUM = [
       "Beginning, ending, padding, and unknown-token conventions affect both inputs and loss. Train a learned tokenizer only on training text so that evaluation data does not influence the preprocessing fit."
     ],
     "technical": [
-      "An embedding table E has shape [V_vocab,D]. Integer IDs [B,T] select rows and produce [B,T,D]. ID 100 is not inherently more similar to ID 101 than ID 900. Similarity depends on learned vectors and the task.",
+      "An embedding table \\(E\\) has shape \\([V_{\\mathrm{vocab}},D]\\). Integer IDs \\([B,T]\\) select rows and produce \\([B,T,D]\\). ID 100 is not inherently more similar to ID 101 than ID 900. Similarity depends on learned vectors and the task.",
       "Repeated occurrences of a token contribute gradients to the same table row. A contextual hidden state after several transformer layers has the same feature width as the input embedding in a conventional block, but includes information gathered from permitted neighbors."
     ],
     "research": [
@@ -189,12 +192,12 @@ window.CURRICULUM = [
     ],
     "equation": "X[b,t,:] = E[token_id[b,t],:]",
     "shapes": [
-      "IDs: [B, T] integer values",
-      "Embedding table: [V_vocab, D]",
-      "Input vectors: [B, T, D]",
-      "Contextual vectors: [B, T, D]"
+      "IDs: \\([B, T]\\) integer values",
+      "Embedding table: \\([V_{\\mathrm{vocab}}, D]\\)",
+      "Input vectors: \\([B, T, D]\\)",
+      "Contextual vectors: \\([B, T, D]\\)"
     ],
-    "numerical": "With table rows 0=[1,0], 1=[0,1], and 2=[1,1], IDs [2,0,2] produce [[1,1],[1,0],[1,1]]. Both uses of row 2 update the same parameters during learning.",
+    "numerical": "With table rows \\(0\\mapsto[1,0]\\), \\(1\\mapsto[0,1]\\), and \\(2\\mapsto[1,1]\\), IDs \\([2,0,2]\\) produce \\(\\begin{bmatrix}1&1\\\\1&0\\\\1&1\\end{bmatrix}\\). Both uses of row 2 update the same parameters during learning.",
     "exercise": "Perform several merges on a tiny repeated-word corpus. Then implement row lookup and inspect how two occurrences of one ID accumulate gradients.",
     "failure": "Treat integer IDs as continuous numerical features or fit the vocabulary on held-out text. The former invents an arbitrary distance; the latter leaks evaluation information.",
     "check": {
@@ -222,7 +225,8 @@ window.CURRICULUM = [
         "title": "PyTorch Embedding",
         "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.Embedding.html"
       }
-    ]
+    ],
+    "equationLatex": "X_{b,t,:}=E_{\\operatorname{token\\_id}(b,t),:}"
   },
   {
     "id": "04",
@@ -232,41 +236,41 @@ window.CURRICULUM = [
     "question": "How does one token gather information from other tokens?",
     "intuition": "Each receiving token creates a query, each possible source creates a key, and each source also provides a value. Query–key compatibility determines how much of each value is mixed into the output. The compatibility weights and the content being mixed play different roles.",
     "essential": [
-      "Let X_q be receiving features and X_k be source features. Learned matrices produce Q=X_qW_Q, K=X_kW_K, and V=X_kW_V. In self-attention the two input streams are the same; in cross-attention they can come from different sources and have different lengths.",
-      "Compute every query’s dot product with every permitted key, divide by the square root of the compatibility width, add an access mask, and apply softmax across keys. Each resulting row sums to one over allowed sources. Multiply that row by V to form a weighted content mixture.",
-      "Q describes compatibility features of a receiver, K describes compatibility features of a source, and V carries source content. These are learned projections, not literal linguistic questions and answers. A head has no guaranteed human-interpretable role.",
-      "With several heads, project and reshape to [B,h,T,d_h], run attention per head, concatenate head outputs, and apply an output projection. Each head can use every original input feature; it is not assigned a fixed semantic slice of the input."
+      "Let \\(X_q\\) be receiving features and \\(X_k\\) be source features. Learned matrices produce \\(Q=X_qW_Q\\), \\(K=X_kW_K\\), and \\(V=X_kW_V\\). In self-attention the two input streams are the same; in cross-attention they can come from different sources and have different lengths.",
+      "Compute every query’s dot product with every permitted key, divide by the square root of the compatibility width, add an access mask, and apply softmax across keys. Each resulting row sums to one over allowed sources. Multiply that row by \\(V\\) to form a weighted content mixture.",
+      "\\(Q\\) describes compatibility features of a receiver, \\(K\\) describes compatibility features of a source, and \\(V\\) carries source content. These are learned projections, not literal linguistic questions and answers. A head has no guaranteed human-interpretable role.",
+      "With several heads, project and reshape to \\([B,h,T,d_h]\\), run attention per head, concatenate head outputs, and apply an output projection. Each head can use every original input feature; it is not assigned a fixed semantic slice of the input."
     ],
     "technical": [
-      "Scaling is motivated by an assumption: independent zero-mean query/key components with unit variance produce a dot-product variance growing with d_h. Dividing by √d_h moderates score magnitude. This is a useful initialization argument, not a claim that trained components always satisfy those assumptions.",
-      "Given upstream output gradient G, the value path receives dV=AᵀG, and the weights receive dA=GVᵀ. For each row, dS=A⊙(dA−Σ(A⊙dA)). The compatibility paths then receive dQ=dSK/√d_h and dK=dSᵀQ/√d_h.",
-      "Projection gradients are dW_Q=Σ_batch X_qᵀdQ, with corresponding K/V expressions. Inputs receive dX_q=dQW_Qᵀ and dX_k=dKW_Kᵀ+dVW_Vᵀ. In self-attention one shared input receives all three contributions. A fixed blocking mask has no trainable gradient; a learned relative bias does.",
-      "Q and K must share compatibility width. V may have a different content width, although equal widths are convenient in the educational example. Optional biases and a fused QKV projection change organization without changing this central computation."
+      "Scaling is motivated by an assumption: independent zero-mean query/key components with unit variance produce a dot-product variance growing with \\(d_h\\). Dividing by \\(\\sqrt{d_h}\\) moderates score magnitude. This is a useful initialization argument, not a claim that trained components always satisfy those assumptions.",
+      "Given upstream output gradient \\(G\\), the value path receives \\(\\mathrm dV=A^{\\mathsf T}G\\), and the weights receive \\(\\mathrm dA=GV^{\\mathsf T}\\). For each row, \\(\\mathrm dS=A\\odot\\left(\\mathrm dA-\\sum_{\\mathrm{keys}}(A\\odot\\mathrm dA)\\right)\\). The compatibility paths then receive \\(\\mathrm dQ=\\frac{\\mathrm dS\\,K}{\\sqrt{d_h}}\\) and \\(\\mathrm dK=\\frac{\\mathrm dS^{\\mathsf T}Q}{\\sqrt{d_h}}\\).",
+      "Projection gradients are \\(\\mathrm dW_Q=\\sum_{\\mathrm{batch}}X_q^{\\mathsf T}\\mathrm dQ\\), with corresponding \\(K\\)/\\(V\\) expressions. Inputs receive \\(\\mathrm dX_q=\\mathrm dQ\\,W_Q^{\\mathsf T}\\) and \\(\\mathrm dX_k=\\mathrm dK\\,W_K^{\\mathsf T}+\\mathrm dV\\,W_V^{\\mathsf T}\\). In self-attention one shared input receives all three contributions. A fixed blocking mask has no trainable gradient; a learned relative bias does.",
+      "\\(Q\\) and \\(K\\) must share compatibility width. \\(V\\) may have a different content width, although equal widths are convenient in the educational example. Optional biases and a fused QKV projection change organization without changing this central computation."
     ],
     "research": [
       "Use an ordinary matrix implementation as the reference, then compare an optimized implementation with equivalent masks and dropout disabled. Attention maps describe internal weighting; they are not sufficient evidence for causal explanations of model predictions. Test interventions on values, features, or context."
     ],
     "equation": "S = QKᵀ / √d_h + M; A = softmax_keys(S); O = AV",
     "shapes": [
-      "X_q: [B, T_q, D]; X_k: [B, T_k, D]",
-      "W_Q, W_K, W_V: [D, d_h] in the simple equal-width head",
-      "Q: [B, T_q, d_h]; K,V: [B, T_k, d_h]",
-      "Scores and weights: [B, T_q, T_k]",
-      "Output: [B, T_q, d_h]",
-      "Multihead scores: [B, h, T_q, T_k]"
+      "\\(X_q\\): \\([B, T_q, D]\\); \\(X_k\\): \\([B, T_k, D]\\)",
+      "\\(W_Q\\), \\(W_K\\), \\(W_V\\): \\([D, d_h]\\) in the simple equal-width head",
+      "\\(Q\\): \\([B, T_q, d_h]\\); \\(K,V\\): \\([B, T_k, d_h]\\)",
+      "Scores and weights: \\([B, T_q, T_k]\\)",
+      "Output: \\([B, T_q, d_h]\\)",
+      "Multihead scores: \\([B, h, T_q, T_k]\\)"
     ],
-    "numerical": "For one query q=[1,0], keys [1,0] and [0,1], and width 2, scores are [0.707,0]. Softmax gives about [0.670,0.330]. With values [2,0] and [0,4], the output is [1.340,1.321]. Changing only V changes the mixture content without changing those weights.",
+    "numerical": "For one query \\(q=[1,0]\\), keys \\([1,0]\\) and \\([0,1]\\), and width 2, scores are \\([0.707,0]\\). Softmax gives about \\([0.670,0.330]\\). With values \\([2,0]\\) and \\([0,4]\\), the output is \\([1.340,1.321]\\). Changing only \\(V\\) changes the mixture content without changing those weights.",
     "exercise": "Calculate three tokens and two-dimensional projections by hand, including one complete softmax row. Derive the backward pass, compare with automatic differentiation, then inspect the maximum numerical discrepancy.",
     "failure": "Apply softmax over queries instead of keys, or interpret a large weight as evidence that a source feature caused the final decision. Diagnose each error separately.",
     "check": {
-      "question": "If V changes while Q and K stay fixed, what changes?",
+      "question": "If \\(V\\) changes while \\(Q\\) and \\(K\\) stay fixed, what changes?",
       "options": [
         "The output content changes; attention weights stay fixed.",
         "Only attention weights change.",
         "Nothing changes."
       ],
       "answer": 0,
-      "explanation": "Q and K determine compatibility. V is mixed using those fixed weights, so output content changes independently."
+      "explanation": "\\(Q\\) and \\(K\\) determine compatibility. \\(V\\) is mixed using those fixed weights, so output content changes independently."
     },
     "deliverable": "Hand-derived attention, backward pass, and a transparent reference implementation.",
     "evidence": "Save projection matrices, scores, masks, weights, output, all gradients, dtype, and agreement tolerances. This browser calculator is a numerical demonstration rather than a trained model.",
@@ -280,7 +284,8 @@ window.CURRICULUM = [
         "title": "MultiheadAttention conventions",
         "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{aligned}S&=\\frac{QK^{\\mathsf T}}{\\sqrt{d_h}}+M\\\\A&=\\operatorname{softmax}_{\\mathrm{keys}}(S)\\\\O&=AV\\end{aligned}"
   },
   {
     "id": "05",
@@ -304,12 +309,12 @@ window.CURRICULUM = [
     ],
     "equation": "Mᵢⱼ = 0 if source j is allowed for query i; Mᵢⱼ = −∞ otherwise",
     "shapes": [
-      "Causal matrix: [T, T]",
-      "Key validity: [B, T_key]",
-      "Broadcast access mask: compatible with [B, h, T_query, T_key]",
-      "Loss validity: [B, T_target]"
+      "Causal matrix: \\([T, T]\\)",
+      "Key validity: \\([B, T_{\\mathrm{key}}]\\)",
+      "Broadcast access mask: compatible with \\([B, h, T_{\\mathrm{query}}, T_{\\mathrm{key}}]\\)",
+      "Loss validity: \\([B, T_{\\mathrm{target}}]\\)"
     ],
-    "numerical": "For three causal positions, the allowed rows are [1,0,0], [1,1,0], and [1,1,1]. If the unmasked scores of row 0 are [0,9,9], a correct mask still gives weights [1,0,0].",
+    "numerical": "For three causal positions, the allowed rows are \\([1,0,0]\\), \\([1,1,0]\\), and \\([1,1,1]\\). If the unmasked scores of row 0 are \\([0,9,9]\\), a correct mask still gives weights \\([1,0,0]\\).",
     "exercise": "Change the final token and compare earlier outputs with and without a causal mask. Repeat with altered padded content. Print all masks before executing attention.",
     "failure": "A model with leaked future tokens can obtain an impressive teacher-forced loss while failing at generation. The loss measured access to the answer rather than the intended predictive task.",
     "check": {
@@ -330,7 +335,8 @@ window.CURRICULUM = [
         "title": "Scaled-dot-product attention documentation",
         "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html"
       }
-    ]
+    ],
+    "equationLatex": "M_{ij}=\\begin{cases}0,&\\text{source }j\\text{ is allowed for query }i\\\\-\\infty,&\\text{otherwise}\\end{cases}"
   },
   {
     "id": "06",
@@ -340,31 +346,31 @@ window.CURRICULUM = [
     "question": "What makes attention part of a trainable deep network?",
     "intuition": "Attention mixes information between positions. A feed-forward network changes features at each position. Residual paths let a representation retain its previous value while learning an adjustment. Normalization controls feature scale, with its location affecting how information and gradients move.",
     "essential": [
-      "Use a pre-normalized educational block: u=x+Dropout(MHA(LN1(x))); y=u+Dropout(FFN(LN2(u))). LN1 and LN2 have separate learned parameters. A conventional pre-norm stack also documents its final normalization.",
+      "Use a pre-normalized educational block: \\(u=x+\\operatorname{Dropout}(\\operatorname{MHA}(\\operatorname{LN}_1(x)))\\); \\(y=u+\\operatorname{Dropout}(\\operatorname{FFN}(\\operatorname{LN}_2(u)))\\). \\(\\operatorname{LN}_1\\) and \\(\\operatorname{LN}_2\\) have separate learned parameters. A conventional pre-norm stack also documents its final normalization.",
       "Layer normalization computes mean and population variance over the chosen feature dimensions of each token, then applies a learned scale and offset. Batch normalization uses different statistical axes. RMS normalization divides by a root-mean-square scale without subtracting the mean.",
-      "The positionwise feed-forward network projects D features into a hidden width, applies a nonlinear function, and projects back to D. The same weights are applied at each position. It mixes channels without directly exchanging information between positions.",
+      "The positionwise feed-forward network projects \\(D\\) features into a hidden width, applies a nonlinear function, and projects back to \\(D\\). The same weights are applied at each position. It mixes channels without directly exchanging information between positions.",
       "Dropout on attention weights differs from dropout on sublayer outputs. Evaluation disables dropout modules, and direct attention APIs may require their own dropout setting. Residual addition requires compatible shapes."
     ],
     "technical": [
-      "Pre-norm uses x+F(LN(x)); post-norm uses LN(x+F(x)). The original transformer used a post-norm arrangement. Moving normalization changes optimization and gradient paths, so compare it as an explicit design intervention.",
-      "For a token vector x, LN(x)=γ⊙(x−μ)/√(σ²+ε)+β, using the population variance over D features. Epsilon limits division by very small variance. RMSNorm’s denominator uses mean(x²); omitting a bias from LayerNorm does not make it RMSNorm.",
-      "An ordinary feed-forward network is φ(xW₁+b₁)W₂+b₂. ReLU clips negative values, whereas GELU uses a smooth gating behavior. SwiGLU multiplies SiLU(xW_g) by xW_u and projects with W_d. Match parameter counts when comparing gated and ordinary variants; equal expansion ratios can have unequal budgets.",
-      "Count embeddings, Q/K/V and output projections, both normalizations, feed-forward weights, biases, and output heads. Plot activations and gradients across depth when changing residuals, width, initialization, or optional stochastic depth."
+      "Pre-norm uses \\(x+F(\\operatorname{LN}(x))\\); post-norm uses \\(\\operatorname{LN}(x+F(x))\\). The original transformer used a post-norm arrangement. Moving normalization changes optimization and gradient paths, so compare it as an explicit design intervention.",
+      "For a token vector \\(x\\), \\(\\operatorname{LN}(x)=\\gamma\\odot\\frac{x-\\mu}{\\sqrt{\\sigma^2+\\varepsilon}}+\\beta\\), using the population variance over \\(D\\) features. Epsilon limits division by very small variance. RMSNorm’s denominator uses \\(\\operatorname{mean}(x^2)\\); omitting a bias from LayerNorm does not make it RMSNorm.",
+      "An ordinary feed-forward network is \\(\\phi(xW_1+b_1)W_2+b_2\\). ReLU clips negative values, whereas GELU uses a smooth gating behavior. SwiGLU multiplies \\(\\operatorname{SiLU}(xW_g)\\) by \\(xW_u\\) and projects with \\(W_d\\). Match parameter counts when comparing gated and ordinary variants; equal expansion ratios can have unequal budgets.",
+      "Count embeddings, \\(Q\\)/\\(K\\)/\\(V\\) and output projections, both normalizations, feed-forward weights, biases, and output heads. Plot activations and gradients across depth when changing residuals, width, initialization, or optional stochastic depth."
     ],
     "research": [
       "Ablate one factor at a time: remove residuals, move normalization, or change feed-forward width. Report observed instability with its settings rather than declaring that one choice always fails. A short successful loss curve does not establish a universally better architecture."
     ],
     "equation": "u = x + Dropout(MHA(LN₁(x))); y = u + Dropout(FFN(LN₂(u)))",
     "shapes": [
-      "Input/residual stream: [B, T, D]",
-      "Head projections: [B, h, T, d_h]",
-      "Concatenated attention: [B, T, D]",
-      "FFN expansion: [B, T, D_ff]",
-      "FFN contraction/output: [B, T, D]"
+      "Input/residual stream: \\([B, T, D]\\)",
+      "Head projections: \\([B, h, T, d_h]\\)",
+      "Concatenated attention: \\([B, T, D]\\)",
+      "FFN expansion: \\([B, T, D_{\\mathrm{ff}}]\\)",
+      "FFN contraction/output: \\([B, T, D]\\)"
     ],
-    "numerical": "For features [1,3], the mean is 2 and population variance is 1. Ignoring epsilon and using γ=1, β=0, LayerNorm gives [−1,1]. RMS normalization instead divides [1,3] by √5, giving approximately [0.447,1.342].",
+    "numerical": "For features \\([1,3]\\), the mean is 2 and population variance is 1. Ignoring epsilon and using \\(\\gamma=1\\), \\(\\beta=0\\), LayerNorm gives \\([-1,1]\\). RMS normalization instead divides \\([1,3]\\) by \\(\\sqrt{5}\\), giving approximately \\([0.447,1.342]\\).",
     "exercise": "Implement attention, normalization, residuals, and the feed-forward network with ordinary tensor operations. Reconstruct the original post-norm arrangement separately and compare activation statistics.",
-    "failure": "Normalize across tokens when the intended LayerNorm axis is features, or add a sublayer output of width D_ff directly to a residual of width D.",
+    "failure": "Normalize across tokens when the intended LayerNorm axis is features, or add a sublayer output of width D_ff directly to a residual of width \\(D\\).",
     "check": {
       "question": "Which sublayer directly mixes information across different token positions?",
       "options": [
@@ -399,7 +405,8 @@ window.CURRICULUM = [
         "title": "GLU variants",
         "url": "https://arxiv.org/abs/2002.05202"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{aligned}u&=x+\\operatorname{Dropout}\\bigl(\\operatorname{MHA}(\\operatorname{LN}_1(x))\\bigr)\\\\y&=u+\\operatorname{Dropout}\\bigl(\\operatorname{FFN}(\\operatorname{LN}_2(u))\\bigr)\\end{aligned}"
   },
   {
     "id": "07",
@@ -415,7 +422,7 @@ window.CURRICULUM = [
       "Pretraining supplies an initial representation; fine-tuning changes parameters for a later task; conditioning provides input context; teacher forcing supplies known target prefixes during training. These describe different aspects of a learning system."
     ],
     "technical": [
-      "A vocabulary projection converts [B,T,D] into logits [B,T,V_vocab]. Next-token negative log-likelihood averages −log p(correct target) over valid targets. Perplexity is exp(mean negative log-likelihood), with comparisons requiring compatible tokenization and evaluation conventions.",
+      "A vocabulary projection converts \\([B,T,D]\\) into logits \\([B,T,V_{\\mathrm{vocab}}]\\). Next-token negative log-likelihood averages \\(-\\log p(\\text{correct target})\\) over valid targets. Perplexity is \\(\\exp(\\text{mean negative log-likelihood})\\), with comparisons requiring compatible tokenization and evaluation conventions.",
       "Input/output weight tying can reuse the embedding table as the vocabulary projection when dimensions agree. The shared parameters then receive both lookup-path and output-projection gradients.",
       "For variable-length microbatches, accumulating independently averaged losses gives each microbatch equal weight. To reproduce a mean over all valid tokens, accumulate summed losses and valid-token counts instead."
     ],
@@ -424,13 +431,13 @@ window.CURRICULUM = [
     ],
     "equation": "L = −(1/N_valid) Σ_valid log pθ(yₜ | y<ₜ, source)",
     "shapes": [
-      "Source features: [B, T_source, D_source]",
-      "Decoder queries: [B, T_target, d_h]",
-      "Cross-attention scores: [B, h, T_target, T_source]",
-      "Vocabulary logits: [B, T_target, V_vocab]"
+      "Source features: \\([B, T_{\\mathrm{source}}, D_{\\mathrm{source}}]\\)",
+      "Decoder queries: \\([B, T_{\\mathrm{target}}, d_h]\\)",
+      "Cross-attention scores: \\([B, h, T_{\\mathrm{target}}, T_{\\mathrm{source}}]\\)",
+      "Vocabulary logits: \\([B, T_{\\mathrm{target}}, V_{\\mathrm{vocab}}]\\)"
     ],
-    "numerical": "One microbatch contains 2 valid tokens with mean loss 1; another contains 8 with mean loss 3. Averaging the two means gives 2. The token-weighted mean is (2×1+8×3)/10=2.6.",
-    "exercise": "Trace Q/K/V origins in an encoder–decoder. Create shifted next-token targets, ignore padded targets, and explain your loss denominator.",
+    "numerical": "One microbatch contains 2 valid tokens with mean loss 1; another contains 8 with mean loss 3. Averaging the two means gives 2. The token-weighted mean is \\(\\frac{2\\times1+8\\times3}{10}=2.6\\).",
+    "exercise": "Trace \\(Q\\)/\\(K\\)/\\(V\\) origins in an encoder–decoder. Create shifted next-token targets, ignore padded targets, and explain your loss denominator.",
     "failure": "Compare perplexities across incompatible tokenizers or change microbatch composition without noticing that the loss weighting changed.",
     "check": {
       "question": "Where do keys and values come from in encoder–decoder cross-attention?",
@@ -457,7 +464,8 @@ window.CURRICULUM = [
         "title": "T5",
         "url": "https://arxiv.org/abs/1910.10683"
       }
-    ]
+    ],
+    "equationLatex": "\\mathcal L=-\\frac{1}{N_{\\mathrm{valid}}}\\sum_{t\\in\\mathcal T_{\\mathrm{valid}}}\\log p_\\theta(y_t\\mid y_{<t},\\mathrm{source})"
   },
   {
     "id": "08",
@@ -472,7 +480,7 @@ window.CURRICULUM = [
       "For images, raster order is a storage convention; nearby raster indices are not always spatial neighbors. Use two- or three-dimensional geometry when appropriate. For tracking, coordinates should reflect physical space, and elapsed time matters when frame intervals vary."
     ],
     "technical": [
-      "A two-dimensional rotation is R(θ)=[[cosθ,−sinθ],[sinθ,cosθ]]. Orthogonality preserves norms. The dot product of R(mθ)q and R(nθ)k depends on the relative offset n−m through qᵀR((n−m)θ)k.",
+      "A two-dimensional rotation is \\(R(\\theta)=\\begin{bmatrix}\\cos\\theta&-\\sin\\theta\\\\\\sin\\theta&\\cos\\theta\\end{bmatrix}\\). Orthogonality preserves norms. The dot product of \\(R(m\\theta)q\\) and \\(R(n\\theta)k\\) depends on the relative offset \\(n-m\\) through \\(q^{\\mathsf T}R((n-m)\\theta)k\\).",
       "Being mathematically defined at a longer sequence position is different from reliable long-context behavior after training. Coordinate scaling, interpolation, positional frequencies, and the training distribution can change extrapolation behavior."
     ],
     "research": [
@@ -480,12 +488,12 @@ window.CURRICULUM = [
     ],
     "equation": "(R(mθ)q)ᵀ(R(nθ)k) = qᵀR((n−m)θ)k",
     "shapes": [
-      "Absolute text position: [T, D]",
-      "Image coordinates: [N, 2]",
-      "Volume coordinates: [N, 3]",
-      "Cell position/time features: [B, N, spatial_dims + 1]"
+      "Absolute text position: \\([T, D]\\)",
+      "Image coordinates: \\([N, 2]\\)",
+      "Volume coordinates: \\([N, 3]\\)",
+      "Cell position/time features: \\([B, N, d_{\\mathrm{spatial}} + 1]\\)"
     ],
-    "numerical": "Let q=k=[1,0] and θ=90°. At positions 0 and 1 the rotated vectors are [1,0] and [0,1], so their dot product is 0. At positions 1 and 2 the dot product is also 0: the relative offset is unchanged.",
+    "numerical": "Let \\(q=k=[1,0]\\) and \\(\\theta=90^\\circ\\). At positions 0 and 1 the rotated vectors are \\([1,0]\\) and \\([0,1]\\), so their dot product is 0. At positions 1 and 2 the dot product is also 0: the relative offset is unchanged.",
     "exercise": "Shuffle unpositioned tokens and verify output permutation. Then add inconsistent positions and explain the failure. Numerically verify the rotation identity.",
     "failure": "Use arbitrary within-frame object indices as physical positions. Reordering a detection table then changes correspondence predictions even though the movie is unchanged.",
     "check": {
@@ -509,7 +517,8 @@ window.CURRICULUM = [
         "title": "RoFormer / RoPE",
         "url": "https://arxiv.org/abs/2104.09864"
       }
-    ]
+    ],
+    "equationLatex": "\\bigl(R(m\\theta)q\\bigr)^{\\mathsf T}\\bigl(R(n\\theta)k\\bigr)=q^{\\mathsf T}R\\bigl((n-m)\\theta\\bigr)k"
   },
   {
     "id": "09",
@@ -521,10 +530,10 @@ window.CURRICULUM = [
     "essential": [
       "Training choices include initialization, Adam or AdamW optimization, weight decay, learning-rate schedules, warm-up, clipping, effective batch size, and checkpoint selection. They must be recorded with the architecture and data split. Validation selects settings; test data estimates final performance.",
       "Inference converts logits into a selected token through greedy choice or a probability distribution adjusted by temperature. Stopping rules matter. Better held-out loss and better task-specific generation are related but not identical outcomes.",
-      "Dense attention stores a score array proportional to B×h×N² and performs pairwise work proportional to roughly N²D. Projection and feed-forward costs also matter. FlashAttention changes tiling and memory movement for exact dense attention; it does not make dense pairwise arithmetic linear."
+      "Dense attention stores a score array proportional to \\(BhN^2\\) and performs pairwise work proportional to roughly \\(N^2D\\). Projection and feed-forward costs also matter. FlashAttention changes tiling and memory movement for exact dense attention; it does not make dense pairwise arithmetic linear."
     ],
     "technical": [
-      "For a conventional cache, bytes=2×layers×batch×cached_tokens×KV_heads×head_width×bytes_per_element. The leading 2 counts keys and values. Multi-query and grouped-query attention alter the number of KV heads and therefore cache storage.",
+      "For a conventional cache, \\(\\text{bytes}=2LB\\,N_{\\mathrm{cached}}\\,h_{\\mathrm{KV}}\\,d_{\\mathrm{head}}\\times\\text{bytes per element}\\). The leading 2 counts keys and values. Multi-query and grouped-query attention alter the number of KV heads and therefore cache storage.",
       "Cached decoding uses unequal query/key lengths. A new query at absolute position offset+i may attend through that absolute position. A fresh square triangle is insufficient; check the library’s non-square alignment, one-token continuation, chunked continuation, and positional offsets.",
       "Cache reuse assumes fixed parameters, unchanged prefix representations, deterministic evaluation, and compatible access and positions. Changing a prefix token, weights, or positional conventions invalidates that assumption. RoPE positions continue from the existing offset.",
       "Mixed precision may require gradient scaling and different tolerances. Save weights, optimizer, scheduler, random state, configuration, and provenance to restore a claimed training computation. Reproducible shuffling is distinct from an independent training seed."
@@ -534,12 +543,12 @@ window.CURRICULUM = [
     ],
     "equation": "cache bytes = 2 × L × B × N_cached × h_KV × d_head × bytes_per_element",
     "shapes": [
-      "Dense scores: [B, h, N, N]",
-      "New-token queries: [B, h, N_new, d_h]",
-      "Cached keys/values: [B, h_KV, N_cached, d_h]",
-      "Continuation scores: [B, h, N_new, N_cached + N_new]"
+      "Dense scores: \\([B, h, N, N]\\)",
+      "New-token queries: \\([B, h, N_{\\mathrm{new}}, d_h]\\)",
+      "Cached keys/values: \\([B, h_{\\mathrm{KV}}, N_{\\mathrm{cached}}, d_h]\\)",
+      "Continuation scores: \\([B, h, N_{\\mathrm{new}}, N_{\\mathrm{cached}} + N_{\\mathrm{new}}]\\)"
     ],
-    "numerical": "For 2 layers, batch 1, 100 cached tokens, 2 KV heads, head width 4, and 4 bytes per element, the key/value cache stores 2×2×1×100×2×4×4=12,800 bytes. Doubling token count doubles this cache but quadruples a dense square score matrix.",
+    "numerical": "For 2 layers, batch 1, 100 cached tokens, 2 KV heads, head width 4, and 4 bytes per element, the key/value cache stores \\(2\\times2\\times1\\times100\\times2\\times4\\times4=12{,}800\\) bytes. Doubling token count doubles this cache but quadruples a dense square score matrix.",
     "exercise": "Compare cached and full-prefix logits with dropout disabled for one-token and multi-token continuations. Profile one training step before increasing sequence length.",
     "failure": "Restart positional indices at zero after caching a prefix, or use a wrongly aligned causal mask. The cached computation then disagrees with full-prefix evaluation.",
     "check": {
@@ -547,7 +556,7 @@ window.CURRICULUM = [
       "options": [
         "Memory movement and tiling while preserving the dense operation within numerical precision.",
         "The number of pairwise interactions becomes linear.",
-        "It removes Q/K/V projections."
+        "It removes \\(Q\\)/\\(K\\)/\\(V\\) projections."
       ],
       "answer": 0,
       "explanation": "Efficient exact attention avoids some materialization and memory traffic; it retains dense pairwise arithmetic."
@@ -568,7 +577,8 @@ window.CURRICULUM = [
         "title": "FlashAttention",
         "url": "https://arxiv.org/abs/2205.14135"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{aligned}\\text{cache bytes}&=2LB\\,N_{\\mathrm{cached}}\\,h_{\\mathrm{KV}}\\,d_{\\mathrm{head}}\\\\&\\qquad\\times\\text{bytes per element}\\end{aligned}"
   },
   {
     "id": "10",
@@ -578,34 +588,34 @@ window.CURRICULUM = [
     "question": "How can the same attention block process pixels?",
     "intuition": "Cut an image into a grid of patches. Flatten each patch into a vector and project it into a shared feature width. Attention now sees a sequence of patch descriptions, plus position information. A patch is a sampling unit; it does not necessarily correspond to one object.",
     "essential": [
-      "For a 2D image [B,C,H,W] and square patch width P, the token count is (H/P)(W/P) when both dimensions divide evenly. Each raw patch has CP² values. Its learned projection creates D features, and D need not equal CP².",
+      "For a 2D image \\([B,C,H,W]\\) and square patch width \\(P\\), the token count is \\(\\frac HP\\frac WP\\) when both dimensions divide evenly. Each raw patch has \\(CP^2\\) values. Its learned projection creates \\(D\\) features, and \\(D\\) need not equal \\(CP^2\\).",
       "A Vision Transformer (ViT) uses patch features, positions, a transformer encoder, final normalization, and a task head. A learned class token can collect information for classification; mean pooling provides an alternative. Dense tasks retain spatial patch features rather than relying on one pooled vector.",
       "Convolution shares local filters and acquires larger receptive fields through depth. Attention allows content-dependent token interactions. Neither mechanism is automatically superior for microscopy; data, pretraining, scale, and output design matter.",
       "Choose a documented crop/pad policy for non-divisible sizes. Keep valid regions and reconstruction coordinates consistent. Reconstruct the exact image before any learned projection to verify patch and channel order."
     ],
     "technical": [
-      "Patchification reorganizes [B,C,H,W] into [B,N,CP²]. A matrix W_patch:[CP²,D] maps patches to [B,N,D]. A convolution with kernel and stride P can implement the same learned projection under matching weights and ordering.",
-      "Halving patch width in 2D quadruples N. A full score matrix then grows sixteenfold. Smaller patches retain finer spatial sampling but increase attention cost. Later upsampling cannot guarantee recovery of evidence discarded by a coarse representation."
+      "Patchification reorganizes \\([B,C,H,W]\\) into \\([B,N,CP^2]\\). A matrix \\(W_{\\mathrm{patch}}:[CP^2,D]\\) maps patches to \\([B,N,D]\\). A convolution with kernel and stride \\(P\\) can implement the same learned projection under matching weights and ordering.",
+      "Halving patch width in 2D quadruples \\(N\\). A full score matrix then grows sixteenfold. Smaller patches retain finer spatial sampling but increase attention cost. Later upsampling cannot guarantee recovery of evidence discarded by a coarse representation."
     ],
     "research": [
       "Compare patch size, position information, class-token versus mean pooling, and data quantity. Inspect earlier vision attention work such as non-local networks and Image Transformer; ViT was not the first use of attention in images. A tiny ViT is an educational model rather than an ImageNet reproduction."
     ],
     "equation": "N = (H/P)(W/P); X_patch ∈ ℝ^[B,N,CP²]; E = X_patch W_patch",
     "shapes": [
-      "Image: [B, 3, 224, 224]",
-      "16×16 grid: [B, 196, 768]",
-      "Projected patches: [B, 196, D]",
-      "With class token: [B, 197, D]",
-      "Classifier: [B, number_of_classes]"
+      "Image: \\([B, 3, 224, 224]\\)",
+      "\\(16\\times16\\) grid: \\([B, 196, 768]\\)",
+      "Projected patches: \\([B, 196, D]\\)",
+      "With class token: \\([B, 197, D]\\)",
+      "Classifier: \\([B, n_{\\mathrm{classes}}]\\)"
     ],
-    "numerical": "A 224×224 RGB image with 16×16 patches has 14×14=196 patches and 3×16²=768 values per patch. At patch width 8, there are 784 patches; 784²/196²=16 times as many dense attention score entries.",
+    "numerical": "A \\(224\\times224\\) RGB image with \\(16\\times16\\) patches has \\(14\\times14=196\\) patches and \\(3\\times16^2=768\\) values per patch. At patch width 8, there are 784 patches; \\(\\frac{784^2}{196^2}=16\\) times as many dense attention score entries.",
     "exercise": "Patchify and unpatchify a small labelled checkerboard exactly. Inspect one patch’s pixel order, then add a learned projection and trace a tiny ViT forward pass.",
     "failure": "Restore patch tokens to the wrong grid order, creating a plausible but spatially scrambled dense output. Verify geometry before training.",
     "check": {
-      "question": "Is the raw patch length 768 in the 16×16 RGB example necessarily the model width?",
+      "question": "Is the raw patch length 768 in the \\(16\\times16\\) RGB example necessarily the model width?",
       "options": [
-        "No; D is independently chosen by the learned projection.",
-        "Yes; every ViT must use D=768.",
+        "No; \\(D\\) is independently chosen by the learned projection.",
+        "Yes; every ViT must use \\(D=768\\).",
         "Only with a class token."
       ],
       "answer": 0,
@@ -627,7 +637,8 @@ window.CURRICULUM = [
         "title": "Image Transformer",
         "url": "https://arxiv.org/abs/1802.05751"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{aligned}N&=\\frac HP\\frac WP\\\\X_{\\mathrm{patch}}&\\in\\mathbb R^{B\\times N\\times CP^2}\\\\E&=X_{\\mathrm{patch}}W_{\\mathrm{patch}}\\end{aligned}"
   },
   {
     "id": "11",
@@ -643,20 +654,21 @@ window.CURRICULUM = [
     ],
     "technical": [
       "If window size stays fixed, the attention interaction count scales approximately linearly with total image tokens, since each query sees a bounded local window. Projection, merging, feed-forward, and other model costs remain.",
-      "A feature pyramid contains several resolutions. Restore the geometry of each feature map before fusion. When inspecting pretrained models, record exact checkpoint, image preprocessing, feature extraction stage, and whether weights are frozen, partly tuned, or fully tuned."
+      "A feature pyramid contains several resolutions. Restore the geometry of each feature map before fusion. When inspecting pretrained models, record exact checkpoint, image preprocessing, feature extraction stage, and whether weights are frozen, partly tuned, or fully tuned.",
+      "In the equation, \\(n_{\\mathrm{window}}\\) is the number of tokens in each fixed-size window."
     ],
     "research": [
       "Separate architecture, objective, augmentation, data scale, initialization, and trainable budget. Compare frozen features with a small head, partial fine-tuning, and a randomly initialized small model as distinct conditions. Pretraining overlap with evaluation data should be documented, and unknown overlap should stay marked unknown."
     ],
     "equation": "global pairs ≈ N²; fixed-window pairs ≈ N × tokens_per_window",
     "shapes": [
-      "Initial patch grid: [B, H_p, W_p, D]",
-      "Merged grid: [B, H_p/2, W_p/2, D_next]",
-      "Window attention: [B×windows, h, N_window, N_window]",
-      "MAE visible tokens: [B, N_visible, D]"
+      "Initial patch grid: \\([B, H_p, W_p, D]\\)",
+      "Merged grid: \\([B, H_p/2, W_p/2, D_{\\mathrm{next}}]\\)",
+      "Window attention: \\([B\\times n_{\\mathrm{windows}}, h, N_{\\mathrm{window}}, N_{\\mathrm{window}}]\\)",
+      "MAE visible tokens: \\([B, N_{\\mathrm{visible}}, D]\\)"
     ],
-    "numerical": "For 64 tokens in windows of 16, there are 4×16²=1024 within-window score entries per head, compared with 64²=4096 global entries. Shifting windows changes communication, not this basic fixed-window count.",
-    "exercise": "Draw 4×4 windows on an 8×8 grid, shift the partition, and identify which tokens become connected. Compare frozen versus trainable feature extraction in a small downstream plan.",
+    "numerical": "For 64 tokens in windows of 16, there are \\(4\\times16^2=1024\\) within-window score entries per head, compared with \\(64^2=4096\\) global entries. Shifting windows changes communication, not this basic fixed-window count.",
+    "exercise": "Draw \\(4\\times4\\) windows on an \\(8\\times8\\) grid, shift the partition, and identify which tokens become connected. Compare frozen versus trainable feature extraction in a small downstream plan.",
     "failure": "Call a pretrained model’s improvement an architecture effect while its comparison starts randomly and sees much less data.",
     "check": {
       "question": "Which pairing is correct?",
@@ -696,7 +708,8 @@ window.CURRICULUM = [
         "title": "Masked Autoencoders",
         "url": "https://arxiv.org/abs/2111.06377"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{aligned}\\text{global pairs}&\\approx N^2\\\\\\text{fixed-window pairs}&\\approx N\\,n_{\\mathrm{window}}\\end{aligned}"
   },
   {
     "id": "12",
@@ -713,17 +726,17 @@ window.CURRICULUM = [
     ],
     "technical": [
       "Pixel cross-entropy supervises class probabilities; Dice-style losses supervise overlap; distances and flows use regression objectives. Final instance quality is evaluated after reconstruction, using detections, merges, splits, and boundary/overlap criteria.",
-      "Instance IDs are categorical region identifiers. A relabelling from IDs [1,2] to [7,99] must leave geometry and metrics unchanged. Do not regress scalar label values or interpolate IDs with bilinear resizing. Apply identical geometric transforms to images and labels, using label-safe nearest-neighbor sampling for labels."
+      "Instance IDs are categorical region identifiers. A relabelling from IDs \\([1,2]\\) to \\([7,99]\\) must leave geometry and metrics unchanged. Do not regress scalar label values or interpolate IDs with bilinear resizing. Apply identical geometric transforms to images and labels, using label-safe nearest-neighbor sampling for labels."
     ],
     "research": [
       "Hold foreground fixed while changing markers or boundaries to isolate reconstruction. Then hold reconstruction fixed while changing image features. A model can improve pixel overlap while worsening instance count; inspect an error gallery and distinguish those endpoints."
     ],
     "equation": "image → foreground + separating representation → instance reconstruction → labelled objects",
     "shapes": [
-      "Image: [B, C, H, W]",
-      "Foreground/boundary targets: [B, 2, H, W]",
-      "Flow example: [B, 2, H, W]",
-      "Instance labels: [B, H, W] discrete IDs"
+      "Image: \\([B, C, H, W]\\)",
+      "Foreground/boundary targets: \\([B, 2, H, W]\\)",
+      "Flow example: \\([B, 2, H, W]\\)",
+      "Instance labels: \\([B, H, W]\\) discrete IDs"
     ],
     "numerical": "Two touching disks produce one connected component. Watershed with two correct markers can produce two instances; one marker produces one region, while three markers may create three. All three conditions can share exactly the same foreground.",
     "exercise": "Create touching disks, keep their union unchanged, and vary marker placement. Count merges and splits separately from foreground overlap.",
@@ -762,7 +775,8 @@ window.CURRICULUM = [
         "title": "Omnipose",
         "url": "https://doi.org/10.1038/s41592-022-01639-4"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{gathered}\\text{image}\\to\\text{foreground + separating representation}\\\\\\to\\text{instance reconstruction}\\to\\text{labelled objects}\\end{gathered}"
   },
   {
     "id": "13",
@@ -772,12 +786,12 @@ window.CURRICULUM = [
     "question": "How do transformer features become a decision at every pixel?",
     "intuition": "An image encoder produces features at patch locations. A dense decoder restores a spatial grid, combines scales, and predicts pixel-level targets. Upsampling makes a map larger; it does not independently recover boundary evidence that the representation failed to preserve.",
     "essential": [
-      "Start with [B,N,D], remove or separately handle non-spatial tokens, restore the patch grid, and apply a dense head. A linear head, interpolation, convolutional refinement, and multiscale fusion are different ways to turn coarse features into output maps.",
+      "Start with \\([B,N,D]\\), remove or separately handle non-spatial tokens, restore the patch grid, and apply a dense head. A linear head, interpolation, convolutional refinement, and multiscale fusion are different ways to turn coarse features into output maps.",
       "Keep backbone, prediction heads, and instance reconstruction separate. The backbone computes features. Heads predict foreground, boundaries, distances, masks, or other targets. Reconstruction converts those predictions into separate object instances.",
       "SegFormer combines a hierarchical transformer encoder with a lightweight multiscale MLP decoder. Semantic labels assign categories to pixels; they do not automatically separate touching cells into individual identities."
     ],
     "technical": [
-      "For a patch grid H_p×W_p, N must match H_pW_p after non-spatial tokens are handled. Permute features into [B,D,H_p,W_p] for conventional dense operations, and track each resolution change through the decoder.",
+      "For a patch grid \\(H_p\\times W_p\\), \\(N\\) must match \\(H_pW_p\\) after non-spatial tokens are handled. Permute features into \\([B,D,H_p,W_p]\\) for conventional dense operations, and track each resolution change through the decoder.",
       "Bilinear interpolation uses nearby values to populate a finer grid. It cannot uniquely reconstruct high-frequency details absent from the coarse map. Skip features or multiscale evidence can supply information that plain resizing lacks."
     ],
     "research": [
@@ -785,12 +799,12 @@ window.CURRICULUM = [
     ],
     "equation": "[B,N,D] → [B,D,H_p,W_p] → dense target maps → instance reconstruction",
     "shapes": [
-      "Patch features: [B, N, D]",
-      "Spatial grid: [B, D, H_p, W_p]",
-      "Foreground/boundary logits: [B, 2, H, W]",
-      "Reconstructed labels: [B, H, W]"
+      "Patch features: \\([B, N, D]\\)",
+      "Spatial grid: \\([B, D, H_p, W_p]\\)",
+      "Foreground/boundary logits: \\([B, 2, H, W]\\)",
+      "Reconstructed labels: \\([B, H, W]\\)"
     ],
-    "numerical": "An 8×8 patch grid has only 64 spatial feature locations. Resizing its output to 64×64 creates 4096 values by interpolation, but does not create 4096 independent observations of the boundary.",
+    "numerical": "An \\(8\\times8\\) patch grid has only 64 spatial feature locations. Resizing its output to \\(64\\times64\\) creates 4096 values by interpolation, but does not create 4096 independent observations of the boundary.",
     "exercise": "Trace every resolution from a patch encoder to full-size foreground and boundary maps. Use the same watershed reconstruction as the U-Net baseline.",
     "failure": "Feed a class token into a spatial reshape, or compare different instance reconstruction settings and attribute the resulting difference to the encoder.",
     "check": {
@@ -811,7 +825,8 @@ window.CURRICULUM = [
         "title": "SegFormer",
         "url": "https://arxiv.org/abs/2105.15203"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{gathered}[B,N,D]\\to[B,D,H_p,W_p]\\\\\\to\\text{dense target maps}\\to\\text{instance reconstruction}\\end{gathered}"
   },
   {
     "id": "14",
@@ -827,20 +842,21 @@ window.CURRICULUM = [
     ],
     "technical": [
       "Matching searches one-to-one assignments minimizing a combined class/box cost. Box losses can include coordinate distance and generalized intersection over union. The discrete matching selects correspondences, after which differentiable losses train the matched predictions.",
-      "Deformable DETR samples around reference locations and uses multiscale features. It changes the attention sampling pattern; it is not merely the original dense operation applied to a smaller image."
+      "Deformable DETR samples around reference locations and uses multiscale features. It changes the attention sampling pattern; it is not merely the original dense operation applied to a smaller image.",
+      "In the matching equation, \\(r_i\\) is reference object \\(i\\), \\(\\hat y_j\\) is prediction \\(j\\), \\(c\\) is their matching cost, and \\(\\mathcal A\\) is the set of valid one-to-one assignments."
     ],
     "research": [
       "Use synthetic shapes to inspect duplicate predictions, insufficient query capacity, and missing objects. Vary one factor while preserving matching/loss definitions. A variable number of predicted objects does not imply an unlimited-capacity output set."
     ],
     "equation": "σ* = argmin_assignment Σᵢ matching_cost(referenceᵢ, prediction_σ(i))",
     "shapes": [
-      "Image features: [B, N_image, D]",
-      "Object queries: [B, K_queries, D]",
-      "Cross-attention scores: [B, h, K_queries, N_image]",
-      "Class outputs: [B, K_queries, classes+1]",
-      "Boxes: [B, K_queries, 4]"
+      "Image features: \\([B, N_{\\mathrm{image}}, D]\\)",
+      "Object queries: \\([B, K_{\\mathrm{queries}}, D]\\)",
+      "Cross-attention scores: \\([B, h, K_{\\mathrm{queries}}, N_{\\mathrm{image}}]\\)",
+      "Class outputs: \\([B, K_{\\mathrm{queries}}, n_{\\mathrm{classes}}+1]\\)",
+      "Boxes: \\([B, K_{\\mathrm{queries}}, 4]\\)"
     ],
-    "numerical": "For two references A,B and three predictions, let their costs be A:[1,4,5] and B:[3,1,2]. Matching A→1 and B→2 costs 2. Prediction 3 is unmatched and receives no-object supervision, even though it was a possible match.",
+    "numerical": "For two references A,B and three predictions, let their costs be \\(A:[1,4,5]\\) and \\(B:[3,1,2]\\). Matching \\(A\\to1\\) and \\(B\\to2\\) costs 2. Prediction 3 is unmatched and receives no-object supervision, even though it was a possible match.",
     "exercise": "Enumerate assignments for three predictions and two references. Compute matching, then separately calculate matched class/box and unmatched no-object losses.",
     "failure": "Use only two slots for a scene with three distinct objects and blame the decoder for the unavoidable missing object.",
     "check": {
@@ -864,7 +880,8 @@ window.CURRICULUM = [
         "title": "Deformable DETR",
         "url": "https://arxiv.org/abs/2010.04159"
       }
-    ]
+    ],
+    "equationLatex": "\\sigma^*=\\underset{\\sigma\\in\\mathcal A}{\\operatorname{arg\\,min}}\\sum_i c\\bigl(r_i,\\hat y_{\\sigma(i)}\\bigr)"
   },
   {
     "id": "15",
@@ -888,10 +905,10 @@ window.CURRICULUM = [
     ],
     "equation": "image features + encoded prompt → mask candidates + predicted quality",
     "shapes": [
-      "Image features: [B, D, H_f, W_f]",
-      "Prompt/query tokens: [B, K_prompt, D]",
-      "Mask candidates: [B, K_masks, H_mask, W_mask]",
-      "Quality predictions: [B, K_masks]"
+      "Image features: \\([B, D, H_f, W_f]\\)",
+      "Prompt/query tokens: \\([B, K_{\\mathrm{prompt}}, D]\\)",
+      "Mask candidates: \\([B, K_{\\mathrm{masks}}, H_{\\mathrm{mask}}, W_{\\mathrm{mask}}]\\)",
+      "Quality predictions: \\([B, K_{\\mathrm{masks}}]\\)"
     ],
     "numerical": "If automatic detection finds 8 of 10 cells and produces perfect masks for those 8, conditional mask quality can be excellent while the end-to-end pipeline still misses 20% of the objects.",
     "exercise": "Create a prompt audit with exact, shifted, oversized, missing, and automatically proposed boxes. Inspect which errors originate before the mask decoder.",
@@ -933,7 +950,8 @@ window.CURRICULUM = [
         "title": "Cellpose model inventory",
         "url": "https://cellpose.readthedocs.io/en/latest/models.html"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{gathered}\\text{image features}+\\text{encoded prompt}\\\\\\to\\text{mask candidates}+\\text{predicted quality}\\end{gathered}"
   },
   {
     "id": "16",
@@ -943,13 +961,13 @@ window.CURRICULUM = [
     "question": "What changes when pixels become voxels with unequal physical spacing?",
     "intuition": "A cube in voxel coordinates need not be a cube in physical space. If depth samples are four times farther apart than lateral samples, equal numbers of voxels span very different physical distances. Patch shape, motion features, overlap, and reconstruction should respect that geometry.",
     "essential": [
-      "Use [B,C,Z,H,W] and patch dimensions P_z,P_y,P_x. With divisible axes, token count is (Z/P_z)(H/P_y)(W/P_x). Non-cubic patches can better match physical support or memory constraints.",
+      "Use \\([B,C,Z,H,W]\\) and patch dimensions \\(P_z,P_y,P_x\\). With divisible axes, token count is \\(\\frac{Z}{P_z}\\frac{H}{P_y}\\frac{W}{P_x}\\). Non-cubic patches can better match physical support or memory constraints.",
       "Sampling spacing differs from optical resolution. Depth-dependent signal and anisotropic blur affect image evidence. Isotropic resampling reorganizes observed data; it cannot recreate detail that was never measured.",
       "Compare slice-wise 2D, neighboring-slice input, and true 3D processing. A maximum-intensity projection can collapse distinct objects along depth. Three-dimensional positions and normalized physical coordinates should preserve the chosen unit convention.",
       "Large volumes require crops or overlapping sliding windows. Reconcile instance predictions using geometry and instance matching/stitching. Averaging arbitrary integer IDs is meaningless; only suitable continuous prediction maps can be blended before reconstruction."
     ],
     "technical": [
-      "A patch’s nominal support is patch voxel count multiplied by spacing along each axis. At spacing [4,1,1] micrometers, a [4,16,16] patch spans approximately [16,16,16] micrometers. State whether coordinates refer to voxel centers or another geometry convention.",
+      "A patch’s nominal support is patch voxel count multiplied by spacing along each axis. At spacing \\([4,1,1]\\) micrometers, a \\([4,16,16]\\) patch spans approximately \\([16,16,16]\\) micrometers. State whether coordinates refer to voxel centers or another geometry convention.",
       "UNETR and Swin UNETR provide examples of volumetric dense prediction. Their medical semantic segmentation outputs need suitable targets and instance reconstruction to become cell-instance pipelines. Measure memory for a small crop before increasing size."
     ],
     "research": [
@@ -957,12 +975,12 @@ window.CURRICULUM = [
     ],
     "equation": "N = (Z/P_z)(H/P_y)(W/P_x); physical support = patch sizes ⊙ voxel spacing",
     "shapes": [
-      "Volume: [B, C, Z, H, W]",
-      "Raw patches: [B, N, C×P_z×P_y×P_x]",
-      "Tokens: [B, N, D]",
-      "3D labels: [B, Z, H, W]"
+      "Volume: \\([B, C, Z, H, W]\\)",
+      "Raw patches: \\([B, N, C\\times P_z\\times P_y\\times P_x]\\)",
+      "Tokens: \\([B, N, D]\\)",
+      "3D labels: \\([B, Z, H, W]\\)"
     ],
-    "numerical": "A 128³ volume with 16³ patches has 8³=512 tokens. With 8³ patches it has 16³=4096 tokens. Token count rises eightfold, while the dense square score matrix rises 8²=64-fold.",
+    "numerical": "A \\(128^3\\) volume with \\(16^3\\) patches has \\(8^3=512\\) tokens. With \\(8^3\\) patches it has \\(16^3=4096\\) tokens. Token count rises eightfold, while the dense square score matrix rises \\(8^2=64\\)-fold.",
     "exercise": "Calculate token counts and physical patch supports for an anisotropic volume. Design a crop overlap and instance-stitching policy before running a model.",
     "failure": "Compute physical displacement using voxel indices without spacing, or average label ID 2 with ID 8 and interpret the resulting ID 5 as an object.",
     "check": {
@@ -991,7 +1009,8 @@ window.CURRICULUM = [
         "title": "CTC 3D datasets",
         "url": "https://celltrackingchallenge.net/3d-datasets/"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{aligned}N&=\\frac{Z}{P_z}\\frac{H}{P_y}\\frac{W}{P_x}\\\\\\text{physical support}&=\\text{patch sizes}\\odot\\text{voxel spacing}\\end{aligned}"
   },
   {
     "id": "17",
@@ -1006,7 +1025,7 @@ window.CURRICULUM = [
       "Online decisions use observations available by decision time. Offline windows may use later frames to resolve ambiguity. Causal masking follows the task’s information constraints; it is not a universal microscopy requirement. Latency can also determine what information is available."
     ],
     "technical": [
-      "Choose a video layout [B,F,C,H,W] and explicitly state whether an operation moves time into the token axis, batch axis, or leaves it separate. With N spatial patches per frame and F frames, joint dense attention has roughly (FN)² pairs.",
+      "Choose a video layout \\([B,F,C,H,W]\\) and explicitly state whether an operation moves time into the token axis, batch axis, or leaves it separate. With \\(N\\) spatial patches per frame and \\(F\\) frames, joint dense attention has roughly \\((FN)^2\\) pairs.",
       "Frame index is not elapsed biological time. Irregular sampling and changes in frame rate alter the plausible displacement distribution. Represent time intervals or timestamps where those differences matter."
     ],
     "research": [
@@ -1014,10 +1033,10 @@ window.CURRICULUM = [
     ],
     "equation": "joint space–time token pairs ≈ (F × N_spatial)²",
     "shapes": [
-      "Video: [B, F, C, H, W]",
-      "Frame patches: [B, F, N_spatial, D]",
-      "Joint tokens: [B, F×N_spatial, D]",
-      "Detection tokens: [B, N_window, D]"
+      "Video: \\([B, F, C, H, W]\\)",
+      "Frame patches: \\([B, F, N_{\\mathrm{spatial}}, D]\\)",
+      "Joint tokens: \\([B, F\\times N_{\\mathrm{spatial}}, D]\\)",
+      "Detection tokens: \\([B, N_{\\mathrm{window}}, D]\\)"
     ],
     "numerical": "Four frames with 64 patches each give 256 tokens and 65,536 dense pairs per head. Doubling to eight frames gives 512 tokens and 262,144 pairs: four times the pair count.",
     "exercise": "Draw information flow for patch tokens, detection tokens, and persistent queries. Mark the latest frame each decision may read, then calculate the token budget.",
@@ -1044,7 +1063,8 @@ window.CURRICULUM = [
         "title": "Video Swin Transformer",
         "url": "https://arxiv.org/abs/2106.13230"
       }
-    ]
+    ],
+    "equationLatex": "\\text{joint space–time pairs}\\approx(FN_{\\mathrm{spatial}})^2"
   },
   {
     "id": "18",
@@ -1061,19 +1081,20 @@ window.CURRICULUM = [
     ],
     "technical": [
       "A linear assignment minimizes a sum of selected pair costs under one-to-one constraints. Dummy start/end choices or a declared unmatched policy handle differing object counts. Candidate gating reduces the search space but can exclude the correct link.",
-      "Debug in order: is the correct observation present; is its edge eligible; is its score reasonable; does the decoder choose a consistent combination? A better optimizer cannot select an edge absent from the candidate graph."
+      "Debug in order: is the correct observation present; is its edge eligible; is its score reasonable; does the decoder choose a consistent combination? A better optimizer cannot select an edge absent from the candidate graph.",
+      "In the cost equation, \\(d_{\\mathrm{norm}}\\) is normalized displacement and \\(d_{\\mathrm{appearance}}\\) is appearance difference. The coefficients \\(\\alpha,\\beta,\\gamma\\) set the relative contributions."
     ],
     "research": [
       "Use crossing, entry/exit, gap, and division examples. Compare geometry, pairwise learned scores, and contextual scores with detections and decoder fixed. Then reuse scores to compare decoders separately. This identifies which stage creates the observed improvement."
     ],
     "equation": "cost(i,j) = α·normalized_displacement + β·(1−IoU) + γ·appearance_difference",
     "shapes": [
-      "Source centroids: [N_source, spatial_dims]",
-      "Target centroids: [N_target, spatial_dims]",
-      "Pair cost matrix: [N_source, N_target]",
-      "Eligible-pair mask: [N_source, N_target]"
+      "Source centroids: \\([N_{\\mathrm{source}}, d_{\\mathrm{spatial}}]\\)",
+      "Target centroids: \\([N_{\\mathrm{target}}, d_{\\mathrm{spatial}}]\\)",
+      "Pair cost matrix: \\([N_{\\mathrm{source}}, N_{\\mathrm{target}}]\\)",
+      "Eligible-pair mask: \\([N_{\\mathrm{source}}, N_{\\mathrm{target}}]\\)"
     ],
-    "numerical": "Costs are A→1=1, A→2=2, B→1=1.1, B→2=10. Greedy A-first selects A→1 and B→2 for total 11. One-to-one assignment selects A→2 and B→1 for total 3.1.",
+    "numerical": "Costs are \\(c(A,1)=1\\), \\(c(A,2)=2\\), \\(c(B,1)=1.1\\), \\(c(B,2)=10\\). Greedy A-first selects \\(A\\to1\\) and \\(B\\to2\\) for total 11. One-to-one assignment selects \\(A\\to2\\) and \\(B\\to1\\) for total 3.1.",
     "exercise": "Calculate the greedy and optimal assignments above. Then add an unmatched cost, a missing detection, and a division, explaining which assumptions must change.",
     "failure": "Use one-to-one linking for every event and interpret an unmatched daughter as evidence against division.",
     "check": {
@@ -1098,7 +1119,8 @@ window.CURRICULUM = [
         "title": "Conservation Tracking",
         "url": "https://www.cv-foundation.org/openaccess/content_iccv_2013/html/Schiegg_Conservation_Tracking_2013_ICCV_paper.html"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{aligned}c(i,j)&=\\alpha\\,d_{\\mathrm{norm}}(i,j)\\\\&\\quad+\\beta\\bigl(1-\\operatorname{IoU}(i,j)\\bigr)\\\\&\\quad+\\gamma\\,d_{\\mathrm{appearance}}(i,j)\\end{aligned}"
   },
   {
     "id": "19",
@@ -1114,7 +1136,7 @@ window.CURRICULUM = [
       "Absolute and relative coordinates, temporal offsets, neighborhood gating, and crop embeddings are design options. Arbitrary ordering within a frame should not imply biological meaning."
     ],
     "technical": [
-      "Project the measured feature width F_in to the model width D. The object-count axis is distinct from feature width. Preserve mappings from padded token positions to frame-local labels and reference correspondence indices.",
+      "Project the measured feature width F_in to the model width \\(D\\). The object-count axis is distinct from feature width. Preserve mappings from padded token positions to frame-local labels and reference correspondence indices.",
       "A consistent within-frame permutation must permute features, validity masks, labels, and predicted scores together. The physical result should remain equivalent. Padding values must not influence valid predictions."
     ],
     "research": [
@@ -1122,12 +1144,12 @@ window.CURRICULUM = [
     ],
     "equation": "tokenᵢ = projection([time, physical_centroid, size, intensity, shape, optional_appearance]ᵢ)",
     "shapes": [
-      "Measured features: [B, N_max, F_in]",
-      "Projected tokens: [B, N_max, D]",
-      "Valid-token mask: [B, N_max]",
-      "Reference pair labels: [B, N_source, N_target]"
+      "Measured features: \\([B, N_{\\mathrm{max}}, F_{\\mathrm{in}}]\\)",
+      "Projected tokens: \\([B, N_{\\mathrm{max}}, D]\\)",
+      "Valid-token mask: \\([B, N_{\\mathrm{max}}]\\)",
+      "Reference pair labels: \\([B, N_{\\mathrm{source}}, N_{\\mathrm{target}}]\\)"
     ],
-    "numerical": "Two images can report centroids five pixels apart but represent different distances: at 0.5 µm/pixel the displacement is 2.5 µm; at 2 µm/pixel it is 10 µm. A model using raw pixels may confuse acquisition scale with motion.",
+    "numerical": "Two images can report centroids five pixels apart but represent different distances: at \\(0.5\\,\\mathrm{\\mu m/pixel}\\) the displacement is \\(2.5\\,\\mathrm{\\mu m}\\); at \\(2\\,\\mathrm{\\mu m/pixel}\\) it is \\(10\\,\\mathrm{\\mu m}\\). A model using raw pixels may confuse acquisition scale with motion.",
     "exercise": "Build a small detection table and pad two frames of different sizes. Record token-to-instance mappings, fit feature normalization on training examples, and reorder detections to test equivalence.",
     "failure": "Use test-set mean and variance for feature scaling, or lose the instance mapping during sorting and train on incorrect correspondence labels.",
     "check": {
@@ -1152,7 +1174,8 @@ window.CURRICULUM = [
         "title": "Trackastra implementation",
         "url": "https://github.com/weigertlab/trackastra"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{aligned}\\mathrm{token}_i&=\\operatorname{projection}(f_i)\\\\f_i&=[\\text{time},\\text{physical centroid},\\text{size},\\\\&\\qquad\\text{intensity},\\text{shape},\\text{optional appearance}]_i\\end{aligned}"
   },
   {
     "id": "20",
@@ -1176,12 +1199,12 @@ window.CURRICULUM = [
     ],
     "equation": "contextual features = Transformer(cell tokens); association scores = correspondence_head(source, target)",
     "shapes": [
-      "Window tokens: [B, N_window, D]",
-      "Contextual features: [B, N_window, D]",
-      "Association scores: [B, N_source, N_target]",
-      "Supervision/eligibility masks: [B, N_source, N_target]"
+      "Window tokens: \\([B, N_{\\mathrm{window}}, D]\\)",
+      "Contextual features: \\([B, N_{\\mathrm{window}}, D]\\)",
+      "Association scores: \\([B, N_{\\mathrm{source}}, N_{\\mathrm{target}}]\\)",
+      "Supervision/eligibility masks: \\([B, N_{\\mathrm{source}}, N_{\\mathrm{target}}]\\)"
     ],
-    "numerical": "If a mother has two true daughters with target labels [1,1], a single-choice row target cannot express both relationships. Independent binary supervision or an explicitly division-aware normalization changes what the model is allowed to learn.",
+    "numerical": "If a mother has two true daughters with target labels \\([1,1]\\), a single-choice row target cannot express both relationships. Independent binary supervision or an explicitly division-aware normalization changes what the model is allowed to learn.",
     "exercise": "Write the positive/negative association definition for continuation and binary division. Compare one pairwise score with a contextual prediction on a controlled crossing movie.",
     "failure": "Use a single-choice target while expecting two daughters, or report high attention weight as a calibrated continuation probability.",
     "check": {
@@ -1206,7 +1229,8 @@ window.CURRICULUM = [
         "title": "Official Trackastra repository",
         "url": "https://github.com/weigertlab/trackastra"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{aligned}H&=\\operatorname{Transformer}(\\text{cell tokens})\\\\S&=\\operatorname{correspondence\\_head}(H_{\\mathrm{source}},H_{\\mathrm{target}})\\end{aligned}"
   },
   {
     "id": "21",
@@ -1231,12 +1255,12 @@ window.CURRICULUM = [
     ],
     "equation": "minimize Σₑ cₑ xₑ, with xₑ ∈ {0,1} and declared lineage-consistency constraints",
     "shapes": [
-      "Candidate graph: N_detection nodes, E_event hypotheses",
-      "Event costs: [E_event]",
-      "Selection variables: [E_event] binary",
+      "Candidate graph: \\(N_{\\mathrm{detection}}\\) nodes, \\(E_{\\mathrm{event}}\\) hypotheses",
+      "Event costs: \\([E_{\\mathrm{event}}]\\)",
+      "Selection variables: \\([E_{\\mathrm{event}}]\\) binary",
       "Export: track segments + explicit parent relationships"
     ],
-    "numerical": "Suppose edges A→C and B→C score 0.9 and 0.8. Selecting both violates the one-parent rule even though both scores are high. A consistent decoder must reject at least one or select another event explanation.",
+    "numerical": "Suppose edges \\(A\\to C\\) and \\(B\\to C\\) score 0.9 and 0.8. Selecting both violates the one-parent rule even though both scores are high. A consistent decoder must reject at least one or select another event explanation.",
     "exercise": "Write incoming/outgoing constraints for a three-frame toy graph. Add a binary division and a missing-frame gap, then inspect which event combinations are valid.",
     "failure": "Interpret two predicted children as a true division without testing a false segmentation split, or treat the lowest objective as biological ground truth.",
     "check": {
@@ -1261,7 +1285,8 @@ window.CURRICULUM = [
         "title": "Graph-based tracking evaluation",
         "url": "https://doi.org/10.1371/journal.pone.0144959"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{gathered}\\underset{x}{\\operatorname{minimize}}\\quad\\sum_e c_e x_e\\\\x_e\\in\\{0,1\\},\\quad\\text{subject to declared lineage constraints}\\end{gathered}"
   },
   {
     "id": "22",
@@ -1285,9 +1310,9 @@ window.CURRICULUM = [
     ],
     "equation": "alternative masks + association/event hypotheses → compatible selected segmentation and lineage",
     "shapes": [
-      "Candidate masks: [K_candidates, H, W]",
-      "Incompatibility pairs: [K_conflicts, 2]",
-      "Candidate association/event costs: [E]",
+      "Candidate masks: \\([K_{\\mathrm{candidates}}, H, W]\\)",
+      "Incompatibility pairs: \\([K_{\\mathrm{conflicts}}, 2]\\)",
+      "Candidate association/event costs: \\([E]\\)",
       "Selected mask/event variables: binary arrays"
     ],
     "numerical": "Let the one-object interpretation cost 1 and the two-object interpretation cost 2 from image evidence. If temporal costs are 5 and 1, totals are 6 and 3, so the joint system selects two objects. If the two-object candidate is absent, that conclusion is unavailable.",
@@ -1315,7 +1340,8 @@ window.CURRICULUM = [
         "title": "Cell-TRACTR",
         "url": "https://doi.org/10.1371/journal.pcbi.1013071"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{gathered}\\text{alternative masks}+\\text{association/event hypotheses}\\\\\\to\\text{compatible selected segmentation and lineage}\\end{gathered}"
   },
   {
     "id": "23",
@@ -1331,7 +1357,7 @@ window.CURRICULUM = [
       "Gold human-derived references, silver algorithm-derived annotations, synthetic truth, and expert disagreement provide different evidence. Annotation fusion can improve supervision without creating independent ground truth."
     ],
     "technical": [
-      "TRA=1−min(AOGM,AOGM₀)/AOGM₀, where AOGM is a weighted graph-edit cost and AOGM₀ is the cost of constructing the reference graph from scratch. Handle degenerate cases according to the official evaluator.",
+      "\\(\\operatorname{TRA}=1-\\frac{\\min(\\operatorname{AOGM},\\operatorname{AOGM}_0)}{\\operatorname{AOGM}_0}\\), where \\(\\operatorname{AOGM}\\) is a weighted graph-edit cost and \\(\\operatorname{AOGM}_0\\) is the cost of constructing the reference graph from scratch. Handle degenerate cases according to the official evaluator.",
       "Separate boundary ambiguity, association ambiguity, model uncertainty, and domain shift. Attention entropy is not a calibrated error probability. For meaningful probabilities, inspect reliability diagrams and selective-review curves on an independent curated subset.",
       "Split at independent sequence/specimen level. Adjacent frames share objects and acquisition conditions. Thousands of cells from one movie do not become thousands of independent biological replicates. Sparse annotation coverage must not silently turn unannotated cells into background."
     ],
@@ -1340,11 +1366,11 @@ window.CURRICULUM = [
     ],
     "equation": "TRA = 1 − min(AOGM, AOGM₀) / AOGM₀",
     "shapes": [
-      "Predicted/reference labels: [F, H, W] or [F, Z, H, W]",
+      "Predicted/reference labels: \\([F, H, W]\\) or \\([F, Z, H, W]\\)",
       "Predicted/reference lineage graphs: nodes + edges/events",
-      "Sequence-level endpoint table: [independent_sequences, metrics]"
+      "Sequence-level endpoint table: \\([n_{\\mathrm{independent\\ sequences}}, n_{\\mathrm{metrics}}]\\)"
     ],
-    "numerical": "If AOGM=20 and AOGM₀=100, TRA=1−20/100=0.8. This value depends on the official graph conventions and costs; a generic count of correctly linked pairs is a different metric.",
+    "numerical": "If \\(\\operatorname{AOGM}=20\\) and \\(\\operatorname{AOGM}_0=100\\), \\(\\operatorname{TRA}=1-\\frac{20}{100}=0.8\\). This value depends on the official graph conventions and costs; a generic count of correctly linked pairs is a different metric.",
     "exercise": "Construct one example with perfect per-frame masks but swapped identities. Predict which geometry and tracking metrics change before evaluating it.",
     "failure": "Report pixel accuracy on mostly background images as proof of useful cell tracking, or treat frames from the same movie as independent test specimens.",
     "check": {
@@ -1377,7 +1403,8 @@ window.CURRICULUM = [
         "title": "Metric pitfalls",
         "url": "https://doi.org/10.1038/s41592-023-02150-0"
       }
-    ]
+    ],
+    "equationLatex": "\\operatorname{TRA}=1-\\frac{\\min(\\operatorname{AOGM},\\operatorname{AOGM}_0)}{\\operatorname{AOGM}_0}"
   },
   {
     "id": "24",
@@ -1402,8 +1429,8 @@ window.CURRICULUM = [
     ],
     "equation": "claim = measured comparison + declared controls + uncertainty + stated scope",
     "shapes": [
-      "Run registry: [experiment, seed, configuration, checkpoint]",
-      "Paired outputs: [held_out_sequence, method, endpoint]",
+      "Run registry: \\([\\text{experiment}, \\text{seed}, \\text{configuration}, \\text{checkpoint}]\\)",
+      "Paired outputs: \\([\\text{held-out sequence}, \\text{method}, \\text{endpoint}]\\)",
       "Evidence package: configs + manifests + checks + outputs + failure gallery"
     ],
     "numerical": "If a transformer improves mean link accuracy on one movie but worsens complete-track recovery on another, neither endpoint alone supports “better tracking.” Report both, the sequence count, and the conditions that explain the tradeoff.",
@@ -1430,7 +1457,8 @@ window.CURRICULUM = [
         "title": "Trackastra",
         "url": "https://arxiv.org/html/2405.15700v2"
       }
-    ]
+    ],
+    "equationLatex": "\\begin{gathered}\\text{claim}=\\text{measured comparison}+\\text{declared controls}\\\\+\\text{uncertainty}+\\text{stated scope}\\end{gathered}"
   }
 ];
 
@@ -1501,7 +1529,7 @@ window.GLOSSARY = [
   },
   {
     "term": "Dice",
-    "definition": "An overlap measure related to twice the intersection divided by the summed region sizes; a foreground score does not guarantee correct instance partitioning."
+    "definition": "An overlap measure related to twice the intersection divided by the summed region sizes; a foreground score does not guarantee correct instance partitioning. For regions \\(A\\) and \\(B\\), \\(\\operatorname{Dice}(A,B)=\\frac{2|A\\cap B|}{|A|+|B|}\\) when the denominator is nonzero."
   },
   {
     "term": "Embedding",
@@ -1509,7 +1537,7 @@ window.GLOSSARY = [
   },
   {
     "term": "Entropy",
-    "definition": "A measure of distribution spread. High or low attention entropy does not by itself establish prediction error probability."
+    "definition": "A measure of distribution spread. High or low attention entropy does not by itself establish prediction error probability. For a discrete distribution, \\(H(p)=-\\sum_i p_i\\log p_i\\), using the convention \\(0\\log0=0\\)."
   },
   {
     "term": "FFN",
@@ -1537,7 +1565,7 @@ window.GLOSSARY = [
   },
   {
     "term": "IoU / Jaccard",
-    "definition": "Intersection size divided by union size. Named benchmark measures may add specific matching and aggregation conventions."
+    "definition": "Intersection size divided by union size. Named benchmark measures may add specific matching and aggregation conventions. For regions \\(A\\) and \\(B\\), \\(\\operatorname{IoU}(A,B)=\\frac{|A\\cap B|}{|A\\cup B|}\\) when the union is nonempty."
   },
   {
     "term": "KV cache",
@@ -1593,7 +1621,7 @@ window.GLOSSARY = [
   },
   {
     "term": "Q / K / V",
-    "definition": "Queries and keys define compatibility; values supply mixed content. They are learned projections, with Q/K sharing compatibility width."
+    "definition": "Queries and keys define compatibility; values supply mixed content. They are learned projections, with \\(Q\\)/\\(K\\) sharing compatibility width."
   },
   {
     "term": "Residual",
@@ -1605,7 +1633,7 @@ window.GLOSSARY = [
   },
   {
     "term": "RoPE",
-    "definition": "Rotary positional embeddings: position-dependent rotations of Q/K feature pairs that encode relative offsets in their interactions."
+    "definition": "Rotary positional embeddings: position-dependent rotations of \\(Q\\)/\\(K\\) feature pairs that encode relative offsets in their interactions."
   },
   {
     "term": "Self-attention",

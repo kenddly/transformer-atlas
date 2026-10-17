@@ -11,6 +11,7 @@ An interactive educational journey from transformer fundamentals to microscopy s
 - A 50-concept glossary, primary reading library, microscopy paper route, readiness gates, and an 18-experiment research ledger.
 - Browser-local progress and notes, with notebook export.
 - Light and soft dark themes, with a remembered preference and system-theme support.
+- Readable LaTeX notation in lessons, references, and live lab calculations, with accessible MathML and locally bundled KaTeX assets.
 - A public educational blueprint and a downloadable CPU attention starter.
 
 The browser demonstrations use small synthetic examples. The PyTorch attention starter includes recorded numerical verification. Larger model training, real-data studies, and benchmark reproductions remain planned exercises.
@@ -30,6 +31,8 @@ Open `http://localhost:8000/`. No application build or backend is required. Note
 GitHub Pages publishes the root directory of the `main` branch. `.nojekyll` preserves the plain HTML, CSS, JavaScript, and downloads. Push changes to `main` to update the website.
 
 Assets use relative paths and lesson navigation uses URL fragments, so the project works under `/transformer-atlas/`.
+
+Mathematical notation is rendered by [KaTeX](https://katex.org/) 0.19.0, bundled under `vendor/katex/` with its MIT license. Math rendering does not depend on a third-party CDN. Code examples remain plain code; long equations scroll within their own containers on small screens.
 
 ## Learning materials
 
